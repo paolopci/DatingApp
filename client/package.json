@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "start:https": "ng serve --ssl --ssl-cert ssl/localhost.pem --ssl-key ssl/localhost-key.pem --host localhost --port 4200"
   },
   "prettier": {
     "overrides": [
