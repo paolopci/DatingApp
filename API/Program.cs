@@ -1,26 +1,28 @@
-using API.Data;
-using Microsoft.EntityFrameworkCore;
+using API.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+// Add extensions for application services and identity services
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
-builder.Services.AddCors();
 
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200","https://localhost:4200"));
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200", "https://localhost:4200"));
 
+
+// Aggiungo l'autenticazione e l'autorizzazione prima di mappare i controller
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
