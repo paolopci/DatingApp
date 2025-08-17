@@ -2,6 +2,7 @@
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,17 @@ namespace API.Controllers
     public class AccountController : BaseApiController
     {
         private readonly DataContext _context;
+        private readonly ITokenService _tokenService;
 
-        public AccountController(DataContext context)
+        public AccountController(DataContext context, ITokenService tokenService)
         {
             _context = context;
+            _tokenService = tokenService;
         }
 
         [HttpPost]
         [Route("register")]
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
 
             using (var hmac = new HMACSHA512())
@@ -37,17 +40,22 @@ namespace API.Controllers
                     PasswordSalt = hmac.Key
                 };
 
+                var token= _tokenService.CreateToken(user);
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                return user;
+                return new UserDto
+                {
+                    Username = user.UserName,
+                    Token = token
+                };
             }
 
         }
 
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<AppUser>> Login(LoginDto login)
+        public async Task<ActionResult<UserDto>> Login(LoginDto login)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == login.Username.ToLower());
 
@@ -67,7 +75,11 @@ namespace API.Controllers
                 }
             }
 
-            return user;
+            return new UserDto
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
 
 
