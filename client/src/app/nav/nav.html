@@ -5,17 +5,21 @@
             <li class="nav-item"> <a class="nav-link">Matches</a> </li>
             <li class="nav-item"> <a class="nav-link">Lists</a> </li>
             <li class="nav-item"> <a class="nav-link">Messages</a> </li>
-            <li class="nav-item"> <a class="nav-link" (click)="logout()">Logout</a> </li>
         </ul>
         }
 
         @if(loggedIn) {
         <div class="dropdown">
-            <a class="dropdown-toggle text-light">Welcome user</a>
-            <div class="dropdown-menu">
+            <a class="dropdown-toggle text-light text-decoration-none" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Welcome User
+            </a>
+            <ul class="dropdown-menu">
                 <a class="dropdown-item">Edit Profile</a>
+                <a class="dropdown-divider"></a>
+
                 <a class="dropdown-item" (click)="logout()">Logout</a>
-            </div>
+            </ul>
         </div>
         }
 
