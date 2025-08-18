@@ -13,8 +13,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './nav.css'
 })
 export class Nav {
-  private accountService = inject(AccountService)
-  loggedIn = false;
+  accountService = inject(AccountService)
   model: any = {};
 
 
@@ -22,17 +21,16 @@ export class Nav {
     this.accountService.login(this.model).subscribe({
       next: response => {
         console.log(response);
-        this.loggedIn = true;
       },
       error: error => {
         console.log(error);
-        //  this.loggedIn = false;
       }
     });
   }
 
   logout() {
-    this.loggedIn = false;
+    this.accountService.logout();
+    console.log('Logged out');
   }
 
 }
