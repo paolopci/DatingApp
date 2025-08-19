@@ -7,15 +7,6 @@
         <label for="userName">Username</label>
     </div>
 
-    <div class="mb-3">
-        <label for="">Who is your favourite user?</label>
-        <select class="form-select">
-            @for(user of usersFromHome();track $index){
-            <option [value]="user.userName">{{user.userName}}</option>
-            }
-        </select>
-    </div>
-
     <div class="mb-3 form-floating">
         <input type="password" class="form-control" id="password" name="password" placeholder="Password"
             [(ngModel)]="model.password" required>

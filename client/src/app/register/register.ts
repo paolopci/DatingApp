@@ -1,5 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AccountService } from '../_services/account';
+
 
 @Component({
   selector: 'app-register',
@@ -10,13 +12,24 @@ import { FormsModule } from '@angular/forms';
 })
 export class Register {
 
+
+  private accountService = inject(AccountService);
   model: any = {};
-  usersFromHome = input.required<any>();// ho usato un input signal al posto di @Input
+  //usersFromHome = input.required<any>();// ho usato un input signal al posto di @Input
 
   cancelRegister = output<boolean>();
 
   register() {
-    console.log(this.model)
+    this.accountService.register(this.model).subscribe({
+      next: response => {
+        console.log(response);
+        this.cancel();
+      },
+      error: error => {
+        console.log(error);
+      }
+    });
+
   }
 
   cancel() {

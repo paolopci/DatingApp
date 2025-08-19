@@ -15,7 +15,6 @@ export class Home implements OnInit {
   http = inject(HttpClient); // invece di usare il costruttore per l'iniezione di dipendenze
   users: any;
 
-
   ngOnInit(): void {
     this.getUsers();
   }
