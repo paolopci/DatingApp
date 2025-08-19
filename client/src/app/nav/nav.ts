@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../_services/account'; // Assuming Account service is in the same directory
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 
 // Aggiorna il percorso se necessario
@@ -16,13 +16,14 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class Nav {
   accountService = inject(AccountService)
+  private router = inject(Router);
   model: any = {};
 
 
   login() {
     this.accountService.login(this.model).subscribe({
-      next: response => {
-        console.log(response);
+      next: _ => {
+        this.router.navigateByUrl('/members'); // Navigate to members page after login
       },
       error: error => {
         console.log(error);
@@ -32,7 +33,7 @@ export class Nav {
 
   logout() {
     this.accountService.logout();
-    console.log('Logged out');
+    this.router.navigateByUrl('/'); // Navigate to home page after logout
   }
 
 }
