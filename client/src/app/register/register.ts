@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 export class Register {
 
   model: any = {};
+  usersFromHome = input.required<any>();// ho usato un input signal al posto di @Input
 
   register() {
     console.log(this.model)
