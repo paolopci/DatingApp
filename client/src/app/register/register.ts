@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, EventEmitter, input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -13,11 +13,13 @@ export class Register {
   model: any = {};
   usersFromHome = input.required<any>();// ho usato un input signal al posto di @Input
 
+  @Output() cancelRegister = new EventEmitter();
+
   register() {
     console.log(this.model)
   }
 
   cancel() {
-    console.log('cancelled')
+    this.cancelRegister.emit(false);
   }
 }

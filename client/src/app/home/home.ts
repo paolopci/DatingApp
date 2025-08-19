@@ -34,4 +34,9 @@ export class Home implements OnInit {
       complete: () => console.log('Request completed')
     });
   }
+
+  cancelRegisterMode(event: boolean) {
+    this.registerMode = event;
+    console.log(this.registerMode); // per testare se il valore è corretto!!!
+  }
 }
