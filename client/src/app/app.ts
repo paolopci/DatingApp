@@ -9,7 +9,7 @@ import { Toasts } from './toasts/toasts';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, Nav, Home, Toasts],
+  imports: [RouterOutlet, CommonModule, Nav, Toasts],
   standalone: true,
   templateUrl: './app.html',
   styleUrl: './app.css'
