@@ -1,0 +1,20 @@
+.toast-success {
+    background-color: #198754;
+    /* verde bootstrap */
+    color: white;
+    font-weight: bold;
+}
+
+.toast-error {
+    background-color: #dc3545;
+    /* rosso bootstrap */
+    color: white;
+    font-weight: bold;
+}
+
+.toast-info {
+    background-color: #0dcaf0;
+    /* azzurro bootstrap */
+    color: black;
+    font-weight: 500;
+}

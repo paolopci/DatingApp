@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Chrome - Angular HTTPS",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "https://localhost:4200",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "npm: start:https",
+      "runtimeArgs": ["--ignore-certificate-errors"]
+    },
+    {
+      "name": "Edge - Angular HTTPS",
+      "type": "pwa-msedge",
+      "request": "launch",
+      "url": "https://localhost:4200",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "npm: start:https",
+      "runtimeArgs": ["--ignore-certificate-errors"]
+    },
+    {
+      // ATTACH: usa questo se avvii tu browser + ng serve separatamente
+      "name": "Attach to Chrome (9222)",
+      "type": "pwa-chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Start HTTPS + Debug in Chrome",
+      "configurations": ["Chrome - Angular HTTPS"]
+    },
+    {
+      "name": "Start HTTPS + Debug in Edge",
+      "configurations": ["Edge - Angular HTTPS"]
+    }
+  ]
+}

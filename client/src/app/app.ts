@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { Nav } from './nav/nav'; // Assuming Nav component is in the same directory
 import { AccountService } from './_services/account';
 import { Home } from './home/home';
+import { Toasts } from './toasts/toasts';
+
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, Nav, Home],
+  imports: [RouterOutlet, CommonModule, Nav, Toasts],
   standalone: true,
   templateUrl: './app.html',
   styleUrl: './app.css'

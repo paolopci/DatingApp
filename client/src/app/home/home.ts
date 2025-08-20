@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Register } from "../register/register";
 import { HttpClient } from '@angular/common/http';
+import { Toasts } from '../toasts/toasts';
 
 @Component({
   selector: 'app-home',
-  imports: [Register],
+  imports: [Register, Toasts],
   standalone: true,
   templateUrl: './home.html',
   styleUrl: './home.css'
