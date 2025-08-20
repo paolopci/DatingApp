@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../_services/account'; // Assuming Account service is in the same directory
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Toast } from '../_services/toast';
 
@@ -10,7 +10,7 @@ import { Toast } from '../_services/toast';
 
 @Component({
   selector: 'app-nav',
-  imports: [FormsModule, CommonModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule, CommonModule, RouterLink, RouterLinkActive, TitleCasePipe],
   standalone: true,
   templateUrl: './nav.html',
   styleUrl: './nav.css'
