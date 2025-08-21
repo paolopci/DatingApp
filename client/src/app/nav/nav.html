@@ -16,6 +16,9 @@
             </li>
             }
             <!-- qui metto links che posso vedere anche se NON sono loggato -->
+            <li class="nav-item">
+                <a routerLink="/errors" routerLinkActive="active" class="nav-link">Errors</a>
+            </li>
         </ul>
 
         @if(accountService.currentUser()) {

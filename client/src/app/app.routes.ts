@@ -5,6 +5,7 @@ import { MemberDetail } from './members/member-detail/member-detail';
 import { Lists } from './lists/lists';
 import { Messages } from './messages/messages';
 import { authGuard } from './_guards/auth-guard';
+import { TestErrorsComponent } from './errors/test-errors/test-errors.component';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -18,7 +19,7 @@ export const routes: Routes = [
             { path: 'messages', component: Messages },
         ]
     },
-
+    { path: 'errors', component: TestErrorsComponent }, // Route for testing errors
     { path: '**', component: Home, pathMatch: 'full' } // Wildcard route for a 404 page,
 
 ];
