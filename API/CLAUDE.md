@@ -15,6 +15,8 @@ This is a .NET 8 Web API for a dating application. It uses Entity Framework Core
 *   `Services`: Contains business logic, such as the `TokenService` for handling JWT.
 *   `Extensions`: Contains extension methods for configuring services in `Program.cs`
 *   `Interfaces`: Contains the interfaces to implement in the services. 
+*   `Errors`: Exception handling middleware and custom exceptions. 
+*   `Middleware`: Excpetion handling middleware and custom exceptions. 
 
 ## Common Commands
 
