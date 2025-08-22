@@ -6,6 +6,8 @@ import { Lists } from './lists/lists';
 import { Messages } from './messages/messages';
 import { authGuard } from './_guards/auth-guard';
 import { TestErrorsComponent } from './errors/test-errors/test-errors.component';
+import { NotFoundComponent } from './errors/not-found/not-found.component';
+import { ServerErrorComponent } from './errors/server-error/server-error.component';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -20,6 +22,8 @@ export const routes: Routes = [
         ]
     },
     { path: 'errors', component: TestErrorsComponent }, // Route for testing errors
+    { path: 'not-found', component: NotFoundComponent }, // Route for testing not-found error
+    { path: 'server-error', component: ServerErrorComponent }, // Route for testing errors
     { path: '**', component: Home, pathMatch: 'full' } // Wildcard route for a 404 page,
 
 ];
