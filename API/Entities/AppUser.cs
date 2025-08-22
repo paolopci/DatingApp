@@ -30,9 +30,6 @@ namespace API.Entities
         public string City { get; set; }
         [Required]
         public string Country { get; set; }
-
-        public List<Photo> Photos { get; set; } = [];
-
         public int Age
         {
             get
@@ -40,6 +37,11 @@ namespace API.Entities
                 return DateOfBirth.CalculateAge();
             }
         }
+
+
+
+        // Navigation property
+        public List<Photo> Photos { get; set; } = [];
 
 
     }
