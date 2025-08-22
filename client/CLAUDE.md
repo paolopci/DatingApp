@@ -2,22 +2,23 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Commands
+## Commonly Used Commands
 
-- **Start development server**: `npm start` or `ng serve`
-- **Start development server with SSL**: `npm run start:https`
-- **Build**: `npm run build` or `ng build`
-- **Watch for changes**: `npm run watch`
-- **Run unit tests**: `npm test` or `ng test`
-- **Generate a new component**: `ng generate component component-name`
+*   `npm start`: Starts the development server.
+*   `npm run build`: Builds the application for production.
+*   `npm test`: Runs the unit tests.
+*   `npm run watch`: Builds the application and watches for file changes.
 
-## Architecture
+## Code Architecture
 
-This is an Angular application with a standard project structure.
+This is an Angular application. The main application logic is in the `src/app` directory.
 
-- **Routing**: The main application routes are defined in `src/app/app.routes.ts`. Key routes include `/members`, `/lists`, and `/messages`.
-- **Components**: The application is divided into several feature components located in `src/app/`, such as `home`, `members`, `lists`, `messages`, `nav`, and `register`.
-- **Services**: Services are in the `src/app/_services/` directory.
-  - `account.ts`: Manages user authentication (login, logout, register) and stores the current user's state. It interacts with a backend API at `https://localhost:5001/api/`.
-- **Models**: Data models like `User` are located in `src/app/_models/`.
-- **Styling**: Global styles are in `src/styles.css`. The project uses Bootstrap and Font Awesome.
+*   `src/app/_guards`: Contains route guards.
+*   `src/app/_interceptors`: Contains HTTP interceptors.
+*   `src/app/_models`: Contains the application's data models.
+*   `src/app/_services`: Contains the application's services.
+*   `src/app/errors`: Contains components for displaying errors.
+*   `src/app/members`: Contains components related to user profiles.
+*   `src/app/nav`: Contains the main navigation component.
+
+The application uses Bootstrap for styling and ngx-toastr for notifications.

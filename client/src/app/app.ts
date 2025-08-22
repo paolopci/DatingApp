@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Nav } from './nav/nav'; // Assuming Nav component is in the same directory
 import { AccountService } from './_services/account';
-import { Home } from './home/home';
+
 import { Toasts } from './toasts/toasts';
 
 
@@ -31,8 +31,5 @@ export class App implements OnInit {
       this.accountService.currentUser.set(user);
     }
   }
-
-
-
 
 }
