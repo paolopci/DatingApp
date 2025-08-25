@@ -27,17 +27,17 @@ namespace API.Repositories
 
         public async Task<IEnumerable<AppUser>> GetUsersAsync()
         {
-            return await _context.Users.Include(x=>x.Photos).ToListAsync();
+            return await _context.Users.Include(x => x.Photos).ToListAsync();
         }
 
         public async Task<AppUser?> GetUserByIdAsync(int id)
         {
-           return await _context.Users.FindAsync(id);
+            return await _context.Users.Include(x => x.Photos).SingleOrDefaultAsync(x => x.Id == id);
         }
 
-        public async  Task<AppUser?> GetUserByUsernameAsync(string username)
+        public async Task<AppUser?> GetUserByUsernameAsync(string username)
         {
-           return await _context.Users.Include(x=>x.Photos).SingleOrDefaultAsync(x => x.UserName == username);
+            return await _context.Users.Include(x => x.Photos).SingleOrDefaultAsync(x => x.UserName == username);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 
 namespace API.Entities;
@@ -13,6 +14,7 @@ public class Photo
 
     // Navigation properties
     public int AppUserId { get; set; }
+    [JsonIgnore] 
     public AppUser AppUser { get; set; } = null!;
 
 }
