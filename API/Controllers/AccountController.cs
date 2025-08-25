@@ -33,22 +33,25 @@ namespace API.Controllers
                 {
                     return BadRequest("Username is taken");
                 }
-                var user = new AppUser
-                {
-                    UserName = registerDto.Username.ToLower(),
-                    PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(registerDto.Password)),
-                    PasswordSalt = hmac.Key
-                };
 
-                var token= _tokenService.CreateToken(user);
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                return Ok();
 
-                return new UserDto
-                {
-                    Username = user.UserName,
-                    Token = token
-                };
+                //var user = new AppUser
+                //{
+                //    UserName = registerDto.Username.ToLower(),
+                //    PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(registerDto.Password)),
+                //    PasswordSalt = hmac.Key
+                //};
+
+                //var token= _tokenService.CreateToken(user);
+                //_context.Users.Add(user);
+                //await _context.SaveChangesAsync();
+
+                //return new UserDto
+                //{
+                //    Username = user.UserName,
+                //    Token = token
+                //};
             }
 
         }

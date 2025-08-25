@@ -17,6 +17,8 @@ This is a .NET 8 Web API for a dating application. It uses Entity Framework Core
 *   `Interfaces`: Contains the interfaces to implement in the services. 
 *   `Errors`: Exception handling middleware and custom exceptions. 
 *   `Middleware`: Excpetion handling middleware and custom exceptions. 
+*   `Repositories` : Contains the repository pattern implementation for data access abstraction.
+*   `Helpers` : AutoMapper and other helper classes.
 
 ## Common Commands
 
