@@ -1,4 +1,6 @@
 import { Photo } from './photo'
+import { Image } from './image'
+
 
 export interface Member {
     id: number
@@ -15,5 +17,6 @@ export interface Member {
     city: string
     country: string
     photos: Photo[]
+    images?: Image[];
 }
 

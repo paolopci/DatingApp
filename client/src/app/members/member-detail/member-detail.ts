@@ -2,7 +2,7 @@ import { Component, computed, inject, input, OnInit, signal, effect } from '@ang
 import { MembersService } from '../../_services/members.service';
 import { ActivatedRoute } from '@angular/router';
 import { Member } from '../../_models/member';
-
+import { Image } from '../../_models/image';
 import { CommonModule } from '@angular/common';
 
 
@@ -19,6 +19,16 @@ export class MemberDetail implements OnInit {
   private route = inject(ActivatedRoute);
   //member?: Member
   member = input<any | null>(null);
+
+  /** Array di immagini sempre definito (anche se l'input è null/undefined). */
+  images = computed<Image[]>(() => this.vm()?.images ?? []);
+  /** True se ci sono immagini. Utile se vuoi usarlo nel template. */
+  hasImages = computed(() => this.images().length > 0);
+  /** True se ci sono almeno 2 immagini → mostrare i controlli prev/next. */
+  canSlide = computed(() => this.images().length > 1);
+
+  /** Avatar principale con fallback al placeholder. */
+  avatarUrl = computed(() => this.vm()?.photoUrl || 'assets/user.png');
 
   // 2) Aggiungi un signal scrivibile per lo stato locale
   private memberState = signal<Member | null>(null);
