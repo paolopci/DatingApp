@@ -10,6 +10,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(),
+
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     // ORDINE IMPORTANTE: vedi nota sotto

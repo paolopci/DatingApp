@@ -1,14 +1,14 @@
-import { Component, computed, inject, input, OnInit, signal, set, effect } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal, effect } from '@angular/core';
 import { MembersService } from '../../_services/members.service';
 import { ActivatedRoute } from '@angular/router';
 import { Member } from '../../_models/member';
-import { GalleryModule, Image } from '@ks89/angular-modal-gallery';
+
 import { CommonModule } from '@angular/common';
 
 
 @Component({
   selector: 'app-member-detail',
-  imports: [CommonModule, GalleryModule],
+  imports: [CommonModule],
   standalone: true,
   templateUrl: './member-detail.html',
   styleUrl: './member-detail.css'
@@ -47,16 +47,7 @@ export class MemberDetail implements OnInit {
   }
 
   // Computed che trasforma le foto in immagini per la gallery
-  images = computed(() => {
-    const photos = this.member()?.photos ?? [];
-    return photos.map((p: any, index: number) =>
-      new Image(
-        index,
-        { img: p.url, description: p.description },
-        { img: p.url, description: p.description }
-      )
-    );
-  });
+
 
   // Facoltativo: getter comodo per il template
   vm = computed(() => this.memberState());
