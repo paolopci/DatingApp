@@ -1,0 +1,50 @@
+/* === CARD IMAGE ANIMATION === */
+
+/* Comportamento al passaggio del mouse sulla card */
+.card:hover img {
+    transform: scale(1.05);
+    transition: transform 0.4s ease-out;
+}
+
+/* Stato base dell’immagine */
+.card img {
+    transform: scale(1.0);
+    transition: transform 0.4s ease-out;
+}
+
+/* Wrapper immagine: nasconde overflow e gestisce posizione */
+.card-img-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
+/* === ICON BUTTONS ANIMATION === */
+
+/* Stato iniziale: pulsanti invisibili e fuori posizione */
+.member-icons {
+    position: absolute;
+    bottom: -30%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s ease-in-out;
+}
+
+/* Quando si passa sopra all’immagine: pulsanti visibili e animati */
+.card-img-wrapper:hover .member-icons {
+    bottom: 10px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Pulsanti con animazione fluida */
+.member-icons button {
+    transition: transform 0.3s ease;
+}
+
+.member-icons button:hover {
+    transform: scale(1.1);
+}

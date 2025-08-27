@@ -16,7 +16,7 @@ export const routes: Routes = [
         canActivate: [authGuard], // Apply the authGuard to all child routes
         children: [
             { path: 'members', component: MemberList },
-            { path: 'members/:id', component: MemberDetail },
+            { path: 'members/:username', component: MemberDetail },
             { path: 'lists', component: Lists },
             { path: 'messages', component: Messages },
         ]
