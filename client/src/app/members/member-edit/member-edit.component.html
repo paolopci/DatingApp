@@ -1,45 +1,43 @@
-@if (member()) {
+@if (edit) {
 <form (ngSubmit)="updateMember()" #editForm="ngForm">
     <div class="container mt-4">
         <div class="row">
             <!-- LEFT: Avatar + stats + Save -->
             <div class="col-md-4">
-                <img [src]="avatarUrl()" class="img-fluid rounded shadow-sm mb-3 w-100" [alt]="member()?.knownAs" />
+                <img [src]="avatarUrl()" class="img-fluid rounded shadow-sm mb-3 w-100" [alt]="edit.knownAs" />
 
                 <div class="mb-3">
                     <div class="fw-bold">Location:</div>
-                    <div>{{ member()?.city }}, {{ member()?.country }}</div>
+                    <div>{{ edit.city }}, {{ edit.country }}</div>
                 </div>
 
                 <div class="mb-3">
                     <div class="fw-bold">Age:</div>
-                    <div>{{ member()?.age }}</div>
+                    <div>{{ edit.age }}</div>
                 </div>
 
                 <div class="mb-3">
                     <div class="fw-bold">Last Active:</div>
-                    <div>{{ member()?.lastActive }}</div>
+                    <div>{{ edit.lastActive }}</div>
                 </div>
 
                 <div class="mb-4">
                     <div class="fw-bold">Member since:</div>
-                    <div>{{ member()?.created }}</div>
+                    <div>{{ edit.created }}</div>
                 </div>
 
-                <!-- Save full width -->
-                <button type="submit" class="btn btn-success w-100" [disabled]="!editForm.form.valid">
+                <button type="submit" class="btn btn-success w-100" [disabled]="!editForm.dirty || !editForm.form.valid">
                     Save changes
                 </button>
             </div>
 
             <!-- RIGHT: Tabs + content -->
             <div class="col-md-8">
-                <!-- Bootstrap 5.3 Tabs -->
                 <ul class="nav nav-tabs" id="editTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
                             type="button" role="tab" aria-controls="about" aria-selected="true">
-                            About {{ member()?.knownAs }}
+                            About {{ edit.knownAs }}
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -50,50 +48,43 @@
                     </li>
                 </ul>
 
-                <!-- Tab content -->
                 <div class="tab-content mt-3" id="editTabsContent">
                     <!-- TAB ABOUT -->
                     <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
 
-                        <!-- Description -->
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            <textarea name="introduction" [(ngModel)]="member()!.introduction" rows="4"
+                            <textarea name="introduction" [(ngModel)]="edit.introduction" rows="4"
                                 class="form-control"></textarea>
                         </div>
 
-                        <!-- Looking for -->
                         <div class="mb-3">
                             <label class="form-label">Looking for</label>
-                            <textarea name="lookingFor" [(ngModel)]="member()!.lookingFor" rows="4"
+                            <textarea name="lookingFor" [(ngModel)]="edit.lookingFor" rows="4"
                                 class="form-control"></textarea>
                         </div>
 
-                        <!-- Interests -->
                         <div class="mb-3">
                             <label class="form-label">Interests</label>
-                            <textarea name="interests" [(ngModel)]="member()!.interests" rows="4"
+                            <textarea name="interests" [(ngModel)]="edit.interests" rows="4"
                                 class="form-control"></textarea>
                         </div>
 
-                        <!-- Location Details -->
                         <h5 class="mt-4 mb-2">Location Details</h5>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">City</label>
-                                <input type="text" name="city" [(ngModel)]="member()!.city" class="form-control" />
+                                <input type="text" name="city" [(ngModel)]="edit.city" class="form-control" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Country</label>
-                                <input type="text" name="country" [(ngModel)]="member()!.country"
-                                    class="form-control" />
+                                <input type="text" name="country" [(ngModel)]="edit.country" class="form-control" />
                             </div>
                         </div>
                     </div>
 
                     <!-- TAB PHOTOS -->
                     <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
-                        <!-- Qui puoi inserire il photo editor oppure un placeholder -->
                         <p class="text-muted">Photos editor coming soon...</p>
                     </div>
                 </div>
