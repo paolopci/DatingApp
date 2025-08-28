@@ -1,57 +1,104 @@
 @if (member()) {
-<div class="container mt-4">
+<form (ngSubmit)="updateMember()" #editForm="ngForm">
+    <div class="container mt-4">
+        <div class="row">
+            <!-- LEFT: Avatar + stats + Save -->
+            <div class="col-md-4">
+                <img [src]="avatarUrl()" class="img-fluid rounded shadow-sm mb-3 w-100" [alt]="member()?.knownAs" />
 
-    <div class="row">
-        <!-- Avatar -->
-        <div class="col-md-4">
-            <img [src]="avatarUrl()" class="img-fluid rounded shadow-sm mb-3" [alt]="member()?.knownAs" />
-            <div>
-                <strong>Location:</strong>
-                <p>{{member()?.city}}, {{member()?.country}}</p>
-                <strong>Age:</strong>
-                <p>{{member()?.age}}</p>
+                <div class="mb-3">
+                    <div class="fw-bold">Location:</div>
+                    <div>{{ member()?.city }}, {{ member()?.country }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="fw-bold">Age:</div>
+                    <div>{{ member()?.age }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="fw-bold">Last Active:</div>
+                    <div>{{ member()?.lastActive }}</div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="fw-bold">Member since:</div>
+                    <div>{{ member()?.created }}</div>
+                </div>
+
+                <!-- Save full width -->
+                <button type="submit" class="btn btn-success w-100" [disabled]="!editForm.form.valid">
+                    Save changes
+                </button>
             </div>
-        </div>
 
-        <!-- Edit form -->
-        <div class="col-md-8">
-            <div class="alert alert-info p-2 mb-3">
-                <strong>Information:</strong> You have made changes. Any unsaved changes will be lost.
+            <!-- RIGHT: Tabs + content -->
+            <div class="col-md-8">
+                <!-- Bootstrap 5.3 Tabs -->
+                <ul class="nav nav-tabs" id="editTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
+                            type="button" role="tab" aria-controls="about" aria-selected="true">
+                            About {{ member()?.knownAs }}
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos"
+                            type="button" role="tab" aria-controls="photos" aria-selected="false">
+                            Edit Photos
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab content -->
+                <div class="tab-content mt-3" id="editTabsContent">
+                    <!-- TAB ABOUT -->
+                    <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="introduction" [(ngModel)]="member()!.introduction" rows="4"
+                                class="form-control"></textarea>
+                        </div>
+
+                        <!-- Looking for -->
+                        <div class="mb-3">
+                            <label class="form-label">Looking for</label>
+                            <textarea name="lookingFor" [(ngModel)]="member()!.lookingFor" rows="4"
+                                class="form-control"></textarea>
+                        </div>
+
+                        <!-- Interests -->
+                        <div class="mb-3">
+                            <label class="form-label">Interests</label>
+                            <textarea name="interests" [(ngModel)]="member()!.interests" rows="4"
+                                class="form-control"></textarea>
+                        </div>
+
+                        <!-- Location Details -->
+                        <h5 class="mt-4 mb-2">Location Details</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" [(ngModel)]="member()!.city" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Country</label>
+                                <input type="text" name="country" [(ngModel)]="member()!.country"
+                                    class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB PHOTOS -->
+                    <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
+                        <!-- Qui puoi inserire il photo editor oppure un placeholder -->
+                        <p class="text-muted">Photos editor coming soon...</p>
+                    </div>
+                </div>
             </div>
-
-            <ul class="nav nav-tabs mb-3">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active">About {{member()?.knownAs}}</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">Edit Photos</a>
-                </li>
-            </ul>
-
-            <form (ngSubmit)="updateMember()" #editForm="ngForm">
-                <div class="form-group mb-3">
-                    <label>Description</label>
-                    <textarea name="introduction" [(ngModel)]="member()!.introduction" rows="3"
-                        class="form-control"></textarea>
-                </div>
-                <div class="form-group mb-3">
-                    <label>Looking for</label>
-                    <textarea name="lookingFor" [(ngModel)]="member()!.lookingFor" rows="3"
-                        class="form-control"></textarea>
-                </div>
-                <div class="form-group mb-3">
-                    <label>Interests</label>
-                    <textarea name="interests" [(ngModel)]="member()!.interests" rows="3"
-                        class="form-control"></textarea>
-                </div>
-
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary me-2" [disabled]="!editForm.form.valid">Save
-                        changes</button>
-                    <button type="button" class="btn btn-secondary" (click)="ngOnInit()">Cancel</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
+</form>
 }
