@@ -35,33 +35,87 @@
         </div>
     </div>
 
-    <!-- Colonna destra: carousel -->
+    <!-- Colonna destra: tabs -->
     <div class="col-8">
-        @if (images().length > 0) {
-        <div id="memberCarousel" class="carousel slide">
-            <div class="carousel-inner carousel-16x9">
-                @for (image of images(); track $index) {
-                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                    <img [src]="image.url || 'assets/user.png'" class="d-block w-100" [alt]="'photo ' + ($index + 1)" />
+        <ul class="nav nav-tabs" id="memberTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
+                    type="button" role="tab" aria-controls="about" aria-selected="true">
+                    About {{ vm()?.knownAs }}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="interests-tab" data-bs-toggle="tab" data-bs-target="#interests"
+                    type="button" role="tab" aria-controls="interests" aria-selected="false">
+                    Interests
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos"
+                    type="button" role="tab" aria-controls="photos" aria-selected="false">
+                    Photos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages"
+                    type="button" role="tab" aria-controls="messages" aria-selected="false">
+                    Messages
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="memberTabsContent">
+            <!-- TAB ABOUT -->
+            <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
+                <h4>Description</h4>
+                <p>{{ vm()?.introduction }}</p>
+                <h4 class="mt-4">Looking For</h4>
+                <p>{{ vm()?.lookingFor }}</p>
+            </div>
+
+            <!-- TAB INTERESTS -->
+            <div class="tab-pane fade" id="interests" role="tabpanel" aria-labelledby="interests-tab">
+                <h4>Interests</h4>
+                <p>{{ vm()?.interests }}</p>
+            </div>
+
+            <!-- TAB PHOTOS -->
+            <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
+                @if (images().length > 0) {
+                <div id="memberCarousel" class="carousel slide">
+                    <div class="carousel-inner carousel-16x9">
+                        @for (image of images(); track $index) {
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <img [src]="image.url || 'assets/user.png'" class="d-block w-100"
+                                [alt]="'photo ' + ($index + 1)" />
+                        </div>
+                        }
+                    </div>
+
+                    @if (images().length > 1) {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#memberCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#memberCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    }
                 </div>
+                } @else {
+                <!-- Nessuna foto extra: placeholder wide -->
+                <img src="assets/user.png" class="d-block w-100" alt="no image available" />
                 }
             </div>
 
-            @if (images().length > 1) {
-            <button class="carousel-control-prev" type="button" data-bs-target="#memberCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#memberCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-            }
+            <!-- TAB MESSAGES -->
+            <div class="tab-pane fade" id="messages" role="tabpanel" aria-labelledby="messages-tab">
+                <p>Messages will go here</p>
+            </div>
         </div>
-        } @else {
-        <!-- Nessuna foto extra: placeholder wide -->
-        <img src="assets/user.png" class="d-block w-100" alt="no image available" />
-        }
     </div>
 
 </div>
