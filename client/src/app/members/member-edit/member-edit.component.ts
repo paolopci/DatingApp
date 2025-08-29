@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MembersService } from '../../_services/members.service';
@@ -15,6 +15,12 @@ import { Member } from '../../_models/member';
 })
 export class MemberEditComponent implements OnInit {
   @ViewChild('editForm') editForm?: NgForm;
+  // hostListener serve per intercettare event che avvengono fuori dall'applicazione ad esempio nel browser
+  @HostListener('window:beforeunload', ['$event']) unloadNotification($event: any) {
+    if (this.editForm?.dirty) {
+      $event.returnValue = true;
+    }
+  }
 
   private memberService = inject(MembersService);
   private toast = inject(Toast);
@@ -51,8 +57,8 @@ export class MemberEditComponent implements OnInit {
     this.memberService.updateMember(this.edit).subscribe({
       next: () => {
         // allinea lo stato locale (signal) alla versione appena salvata
-      
-          this.member.set(structuredClone(this.edit!));
+
+        this.member.set(structuredClone(this.edit!));
         // usa lo stesso metodo che stavi già usando
         this.toast.show('Profilo aggiornato con successo!', 'success');
         this.member.set(structuredClone(this.edit!));
