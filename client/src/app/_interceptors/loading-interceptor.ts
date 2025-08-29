@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { BusyService } from '../_services/busy.service';
-import { finalize } from 'rxjs';
+import { delay, finalize } from 'rxjs';
 
 /**
  * Interceptor to automatically handle the application's busy state for HTTP requests.
@@ -18,6 +18,8 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   // Passiamo la richiesta al gestore successivo nella catena degli interceptor.
   // Usiamo .pipe() per poter eseguire azioni quando la richiesta è completata.
   return next(req).pipe(
+    // per testare l'applicazione inserisco un ritardo
+    //delay(1000),
     // `finalize` viene eseguito sia in caso di successo che di errore della richiesta.
     // È il posto perfetto per assicurarci di nascondere lo spinner in ogni caso.
     finalize(() => {
