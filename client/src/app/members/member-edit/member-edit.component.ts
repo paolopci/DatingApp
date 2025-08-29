@@ -54,7 +54,7 @@ export class MemberEditComponent implements OnInit {
       
           this.member.set(structuredClone(this.edit!));
         // usa lo stesso metodo che stavi già usando
-        this.toast.show('Profilo aggiornato con successo!');
+        this.toast.show('Profilo aggiornato con successo!', 'success');
         this.member.set(structuredClone(this.edit!));
         this.editForm?.reset(this.edit);
       },
