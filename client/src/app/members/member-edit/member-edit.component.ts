@@ -5,11 +5,12 @@ import { MembersService } from '../../_services/members.service';
 import { AccountService } from '../../_services/account';
 import { Toast } from '../../_services/toast';
 import { Member } from '../../_models/member';
+import { PhotoEditorComponent } from "../photo-editor/photo-editor.component";
 
 @Component({
   selector: 'app-member-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PhotoEditorComponent],
   templateUrl: './member-edit.component.html',
   styleUrls: ['./member-edit.component.css']
 })
