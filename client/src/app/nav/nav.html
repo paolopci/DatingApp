@@ -28,7 +28,7 @@
                 Welcome {{ accountService.currentUser()?.username | titlecase}}
             </a>
             <ul class="dropdown-menu">
-                <a class="dropdown-item">Edit Profile</a>
+                <a routerLink="/member/edit" class="dropdown-item">Edit Profile</a>
                 <a class="dropdown-divider"></a>
 
                 <a class="dropdown-item" (click)="logout()">Logout</a>

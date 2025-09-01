@@ -1,5 +1,5 @@
 .toast-success {
-    background-color: #198754;
+    background-color: #198754 !important;
     /* verde bootstrap */
     color: white;
     font-weight: bold;
