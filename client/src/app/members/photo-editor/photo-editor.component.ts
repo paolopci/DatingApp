@@ -23,13 +23,39 @@ export class PhotoEditorComponent {
   /** File scelti nel dropzone (solo anteprima locale) */
   files: File[] = [];
 
+  /** Messaggi di validazione */
+  validationError: string | null = null;
+  /** Limiti dimensionali */
+  private static readonly MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+
+
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl; // ad esempio https://localhost:5001/api/
 
   /* Selezione/drag&drop nel dropzone */
   onSelect(event: NgxDropzoneChangeEvent) {
+    this.validationError = null;
+
     if (!event?.addedFiles?.length) return;
 
+    const batchSize = event.addedFiles.reduce((acc, f) => acc + f.size, 0);
+    if (batchSize > PhotoEditorComponent.MAX_BYTES) {
+      this.validationError =
+        `Dimensione totale selezionata ${(batchSize / 1024 / 1024).toFixed(2)} MB supera il limite di ${PhotoEditorComponent.MAX_BYTES / 1024} ` +
+        `Seleziona meno file o più piccoli.`;
+      return; // blocco l'upload
+    }
+
+    // 2) controllo per singolo file
+    const tooBig = event.addedFiles.find(f => f.size > PhotoEditorComponent.MAX_BYTES);
+    if (tooBig) {
+      this.validationError =
+        `Il file "${tooBig.name}" è ${(tooBig.size / 1024 / 1024).toFixed(2)} MB ` +
+        `e supera il limite di 10 MB.`;
+      return; // blocco l’upload
+    }
+
+    // Se tutto ok → accodo e carico immediatamente ciascun file
     for (const file of event.addedFiles) {
       this.files.push(file);
       this.uploadPhoto(file);
