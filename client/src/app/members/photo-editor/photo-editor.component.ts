@@ -1,22 +1,37 @@
-import { Component, input, inject } from '@angular/core';
+import { Component, input, inject, signal } from '@angular/core';
 import { Member } from '../../_models/member';
 import { Photo } from '../../_models/photo';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { NgxDropzoneChangeEvent, NgxDropzoneModule } from 'ngx-dropzone';
 import { environment } from '../../../environments/environment.development';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, CommonModule, NgFor } from '@angular/common';
+import { MembersService } from '../../_services/members.service';
+import { AccountService } from '../../_services/account';
+import { Toast } from '../../_services/toast';
 
 
 
 @Component({
   selector: 'app-photo-editor',
-  imports: [NgxDropzoneModule, DecimalPipe],
+  imports: [NgxDropzoneModule, DecimalPipe, CommonModule, NgFor],
   standalone: true,
   templateUrl: './photo-editor.component.html',
   styleUrl: './photo-editor.component.css'
 })
 export class PhotoEditorComponent {
   member = input.required<Member>();
+  private memberService = inject(MembersService);
+  private accountService = inject(AccountService);
+  private readonly toastr = inject(Toast);
+
+
+  // Stato UI per disabilitare i pulsanti mentre chiamiamo l'API
+  private readonly _isSettingMain = signal(false);
+  isSettingMain = this._isSettingMain.asReadonly();
+
+
+
+
 
   // true =upload multiplo, false=singolo
   allowMultiple = true;
@@ -95,9 +110,46 @@ export class PhotoEditorComponent {
       });
   }
 
-  /** TODO: implementazioni future */
-  setMain(photo: Photo) {
-    // chiamata API per impostare la foto principale (se/quando aggiungerai l'endpoint)
+  /**
+  * Imposta la foto come principale (main) lato server
+  * e allinea immediatamente lo stato locale + navbar.
+  */
+  setMainPhoto(photo: Photo) {
+    if (!photo || !photo.id) return;
+    // Evita round-trip inutili
+    if (photo.isMain) return;
+
+    this._isSettingMain.set(true);
+
+
+    this.memberService.setMainPhoto(photo.id).subscribe({
+      next: () => {
+        // 1 aggiorna le foto del member (clear main precedente, set nuova main)
+        const m = this.member();// InputSignal<Member> nel tuo template usi member().photos 
+        if (!m) return;
+        for (const p of m.photos) {
+          if (p.isMain) p.isMain = false;
+        }
+        const target = m.photos.find(p => p.id === photo.id);
+        if (target) target.isMain = true;
+        // 2) Aggiorna la navbar (currentUser.photoUrl) senza richiedere un nuovo login
+        this.accountService.currentUser.update(u => {
+          if (!u) return u;
+          return {
+            ...u,
+            photoUrl: photo.url
+          }
+        });
+        // (opzionale) toast/success log
+        this.toastr.show('Main photo aggiornata');
+      },
+      error: (err) => {
+        console.error('Errore nel setMainPhoto', err);
+        this.toastr.show('Impossibile impostare la main photo');
+      }, complete: () => {
+        this._isSettingMain.set(false);
+      }
+    });
   }
 
   deletePhoto(photo: Photo) {
