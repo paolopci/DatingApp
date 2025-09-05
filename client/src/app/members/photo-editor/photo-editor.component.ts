@@ -8,6 +8,7 @@ import { DecimalPipe, CommonModule, NgFor } from '@angular/common';
 import { MembersService } from '../../_services/members.service';
 import { AccountService } from '../../_services/account';
 import { Toast } from '../../_services/toast';
+import { finalize } from 'rxjs';
 
 
 
@@ -28,6 +29,11 @@ export class PhotoEditorComponent {
   // Stato UI per disabilitare i pulsanti mentre chiamiamo l'API
   private readonly _isSettingMain = signal(false);
   isSettingMain = this._isSettingMain.asReadonly();
+
+  // Traccia gli ID delle foto in cancellazione per disabilitare i bottoni
+  private readonly _deleting = signal<Set<number>>(new Set());
+  // Funzione helper per il template: indica se una foto è in cancellazione
+  isDeleting = (id: number) => this._deleting().has(id);
 
 
 
@@ -153,8 +159,34 @@ export class PhotoEditorComponent {
   }
 
   deletePhoto(photo: Photo) {
-    // chiamata API DELETE e, se ok:
-    // const current = this.member();
-    // if (current) (current as any).photos = current.photos.filter(p => p.id !== photo.id);
+    // Non è consentito eliminare la foto principale
+    if (!photo || !photo.id) return;
+    if (photo.isMain) {
+      this.toastr.show('Non puoi eliminare la foto principale', 'error');
+      return;
+    }
+
+    // Chiamo l'endpoint back-end per eliminare la foto.
+    // API: DELETE /api/users/delete-photo/{photoId}
+    // Segna la foto come "in cancellazione" per evitare doppi click
+    this._deleting.update(s => new Set([...s, photo.id!]));
+
+    this.memberService.deletePhoto(photo.id).pipe(
+      // Al termine (successo/errore) rimuove lo stato di busy per questo ID
+      finalize(() => this._deleting.update(s => { const n = new Set(s); n.delete(photo.id!); return n; }))
+    ).subscribe({
+      next: () => {
+        // Aggiorna lo stato locale rimuovendo la foto dalla galleria
+        const current = this.member();
+        if (!current) return;
+        (current as any).photos = current.photos.filter(p => p.id !== photo.id);
+
+        this.toastr.show('Foto eliminata', 'success');
+      },
+      error: (err) => {
+        console.error('Errore eliminazione foto', err);
+        this.toastr.show('Impossibile eliminare la foto', 'error');
+      }
+    });
   }
 }

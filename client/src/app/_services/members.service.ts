@@ -41,5 +41,11 @@ export class MembersService {
     return this.http.put(this.baseUrl + 'users/set-main-photo/' + photoId, {});
 
   }
+
+  // Cancella una foto lato server
+  deletePhoto(photoId: number) {
+    // API: DELETE /api/users/delete-photo/{photoId}
+    return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
+  }
 }
 
