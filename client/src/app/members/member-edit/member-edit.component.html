@@ -5,13 +5,13 @@
             <!-- LEFT: Avatar + stats + Save -->
             <div class="col-md-4">
                 <h4 class="mb-3">Your profile</h4>
-                
+
                 @if (editForm.dirty) {
                 <div class="alert alert-warning mb-3">
                     <strong>Information:</strong> You have made changes. Any unsaved changes will be lost
                 </div>
                 }
-                
+
                 <img [src]="avatarUrl()" class="img-fluid rounded shadow-sm mb-3 w-100" [alt]="edit.knownAs" />
 
                 <div class="mb-3">
@@ -34,7 +34,8 @@
                     <div>{{ edit.created }}</div>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100" [disabled]="!editForm.dirty || !editForm.form.valid">
+                <button type="submit" class="btn btn-success w-100"
+                    [disabled]="!editForm.dirty || !editForm.form.valid">
                     Save changes
                 </button>
             </div>
@@ -84,12 +85,6 @@
                                 class="form-control"></textarea>
                         </div>
 
-                        <!-- <div class="mb-3">
-                            <label class="form-label">Interests</label>
-                            <textarea name="interests" [(ngModel)]="edit.interests" rows="4"
-                                class="form-control"></textarea>
-                        </div> -->
-
                         <h5 class="mt-4 mb-2">Location Details</h5>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -106,6 +101,7 @@
                     <!-- TAB PHOTOS -->
                     <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
                         <p class="text-muted">Photos editor coming soon...</p>
+                        <app-photo-editor [member]="edit"></app-photo-editor>
                     </div>
 
                     <!-- TAB INTERESTS -->
@@ -113,7 +109,8 @@
                         <p class="text-muted">Interests editor coming soon...</p>
                         <div class="mb-3">
                             <label class="form-label">Interests</label>
-                            <textarea name="interests" [(ngModel)]="edit.interests" rows="4" class="form-control"></textarea>
+                            <textarea name="interests" [(ngModel)]="edit.interests" rows="4"
+                                class="form-control"></textarea>
                         </div>
                     </div>
 

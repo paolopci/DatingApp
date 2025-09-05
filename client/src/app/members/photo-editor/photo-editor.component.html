@@ -1,0 +1,34 @@
+<div class="row">
+    @for(photo of member().photos;track photo.id){
+    <div class="col-2">
+        <img src="{{photo.url}}" alt="photo of user" class="img-thumbnail mb-1">
+        <div class="text-center">
+            <button type="button" class="btn btn-sm" (click)="setMainPhoto(photo)"
+                [disabled]="photo.isMain||isSettingMain()">Main</button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="deletePhoto(photo)"
+                [disabled]="photo.isMain || isDeleting(photo.id)">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+    </div>
+    }
+</div>
+<!-- Dropzone upload -->
+<ngx-dropzone (change)="onSelect($event)" [multiple]="allowMultiple" accept="image/*"
+    class="border rounded p-4 text-center">
+
+    <ngx-dropzone-label>
+        Trascina qui le immagini oppure clicca per selezionarle
+        <div class="text-muted small mt-1">
+            (modalità: {{allowMultiple? 'multiplo' : 'singolo'}})
+        </div>
+    </ngx-dropzone-label>
+
+    <!-- Anteprime locali (non ancora confermate da server) -->
+    <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
+        <ngx-dropzone-label>
+            {{ f.name }} - {{ (f.size / 1024) | number:'1.0-0' }} KB
+        </ngx-dropzone-label>
+    </ngx-dropzone-preview>
+
+</ngx-dropzone>
