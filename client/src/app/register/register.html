@@ -21,9 +21,27 @@
     <!-- knownAs -->
     <app-text-input [control]="$any(registerForm.get('knownAs'))" [label]="'KnownAs'" [type]="'text'"
         [requiredMessage]="'knownAs is required'" />
-    <!-- dateOfBirth -->
-    <app-text-input [control]="$any(registerForm.get('dateOfBirth'))" [label]="'Date Of Birth'" [type]="'date'"
-        [requiredMessage]="'Date Of  Birth is required'" /> 
+    <!-- dateOfBirth (ngbDatepicker) -->
+    <div class="mb-3 form-floating">
+        <input
+            class="form-control"
+            id="register-date-of-birth"
+            placeholder="Date Of Birth"
+            [formControl]="$any(registerForm.get('dateOfBirth'))"
+            ngbDatepicker
+            #dob="ngbDatepicker"
+            (click)="dob.open()"
+            [minDate]="minDob"
+            [maxDate]="maxDob"
+            [startDate]="maxDob"
+            [class.is-invalid]="registerForm.get('dateOfBirth')?.invalid && (registerForm.get('dateOfBirth')?.touched || registerForm.get('dateOfBirth')?.dirty)" />
+
+        <label for="register-date-of-birth">Date Of Birth</label>
+
+        @if (registerForm.get('dateOfBirth')?.hasError('required') && (registerForm.get('dateOfBirth')?.touched || registerForm.get('dateOfBirth')?.dirty)) {
+        <div class="invalid-feedback text-start">Date Of Birth is required</div>
+        }
+    </div>
     <!-- City -->
     <app-text-input [control]="$any(registerForm.get('city'))" [label]="'City'" [type]="'text'"
         [requiredMessage]="'City is required'" />
@@ -51,7 +69,7 @@
 
     <!-- Bottoni -->
     <div class="form-group text-center">
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid" [class.opacity-50]="registerForm.invalid">Register</button>
         <button type="button" class="btn btn-default" (click)="cancel()">Cancel</button>
     </div>
 </form>
