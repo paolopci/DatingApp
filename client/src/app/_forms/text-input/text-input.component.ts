@@ -12,7 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 export class TextInputComponent {
   control = input.required<FormControl>();
   label = input<string>('');
-  type = input<'text' | 'password' | 'email'>('text');
+  type = input<'text' | 'password' | 'email' | 'date' | 'number'>('text');
   id = input<string | undefined>(undefined);
   requiredMessage = input<string | null>(null);
 

@@ -22,8 +22,8 @@
     <app-text-input [control]="$any(registerForm.get('knownAs'))" [label]="'KnownAs'" [type]="'text'"
         [requiredMessage]="'knownAs is required'" />
     <!-- dateOfBirth -->
-    <app-text-input [control]="$any(registerForm.get('dateOfBirth'))" [label]="'Date Of Birth'" [type]="'text'"
-        [requiredMessage]="'Date Of  Birth is required'" />
+    <app-text-input [control]="$any(registerForm.get('dateOfBirth'))" [label]="'Date Of Birth'" [type]="'date'"
+        [requiredMessage]="'Date Of  Birth is required'" /> 
     <!-- City -->
     <app-text-input [control]="$any(registerForm.get('city'))" [label]="'City'" [type]="'text'"
         [requiredMessage]="'City is required'" />
