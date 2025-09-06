@@ -74,6 +74,6 @@ export class MemberEditComponent implements OnInit {
 
   avatarUrl(): string {
     const m = this.edit ?? this.member();
-    return m?.photoUrl || 'assets/user.png';
+    return m?.photoUrl || m?.photos?.find(p => p.isMain)?.url || 'assets/user.png';
   }
 }

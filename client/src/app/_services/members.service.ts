@@ -47,5 +47,13 @@ export class MembersService {
     // API: DELETE /api/users/delete-photo/{photoId}
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
   }
-}
 
+  // Aggiorna la cache locale quando cambia la main photo
+  syncMainPhotoLocal(username: string, photoId: number, photoUrl: string) {
+    this.members.update(list => list.map(m => {
+      if (m.username !== username) return m;
+      const updatedPhotos = (m.photos || []).map(p => ({ ...p, isMain: p.id === photoId }));
+      return { ...m, photoUrl: photoUrl, photos: updatedPhotos } as Member;
+    }));
+  }
+}
