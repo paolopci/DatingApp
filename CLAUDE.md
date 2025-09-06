@@ -56,6 +56,7 @@ This is an Angular 20.1.0 dating application.
 
 *   **Core Services**: `src/app/_services/` - Account, Members, and Toast services
 *   **Models**: `src/app/_models/` - User, Member, Photo, and ToastMessage interfaces
+*   **Forms**: `src/app/_forms/` - Reusable form controls (e.g., `text-input` standalone component)
 *   `Guards`: `src/app/_guards/` - Auth guard for route protection
 *   **Interceptors**: `src/app/_interceptors/` - Error interceptor for HTTP error handling
 *   **Feature Modules**:
