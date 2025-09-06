@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { AccountService } from '../_services/account';
-import { JsonPipe } from '@angular/common';
+import { JsonPipe, CommonModule } from '@angular/common';
 
 
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, JsonPipe],
+  imports: [ReactiveFormsModule, JsonPipe, CommonModule],
   standalone: true,
   templateUrl: './register.html',
   styleUrl: './register.css'
@@ -25,7 +25,7 @@ export class Register implements OnInit {
 
   initializeForm() {
     this.registerForm = new FormGroup({
-      username: new FormControl("Ciao", Validators.required),
+      username: new FormControl("", Validators.required),
       password: new FormControl('', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]),
       confirmPassword: new FormControl('', [Validators.required, this.matchValues('password')])
     });

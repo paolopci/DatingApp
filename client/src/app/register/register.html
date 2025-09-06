@@ -1,27 +1,82 @@
 <form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
     <h2 class="text-center text-primary">Sign Up</h2>
     <hr>
+
+    <!-- Username -->
     <div class="mb-3 form-floating">
-        <input type="text" class="form-control" id="userName" name="userName" placeholder="Username"
-            formControlName="username">
+        <input [class.is-invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+            type="text" class="form-control" id="userName" placeholder="Username" formControlName="username">
         <label for="userName">Username</label>
+        <div class="invalid-feedback text-start">Please enter a username</div>
     </div>
 
+    <!-- Password -->
     <div class="mb-3 form-floating">
-        <input type="password" class="form-control" id="password" name="password" placeholder="Password"
-            formControlName="password">
+        <input [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            type="password" class="form-control" id="password" placeholder="Password" formControlName="password">
         <label for="password">Password</label>
+
+        @if(registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched){
+        <div class="invalid-feedback text-start">Please enter a password</div>
+        }
+        @if(registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched){
+        <div class="invalid-feedback text-start">Minimum password length 4 characters</div>
+        }
+        @if(registerForm.get('password')?.hasError('maxlength') && registerForm.get('password')?.touched){
+        <div class="invalid-feedback text-start">Maximum password length 8 characters</div>
+        }
     </div>
+
+    <!-- Confirm Password -->
     <div class="mb-3 form-floating">
-        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
-            placeholder="Confirm Password" formControlName="confirmPassword">
+        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password"
+            formControlName="confirmPassword" [class.is-invalid]="
+        (
+          registerForm.get('confirmPassword')?.invalid &&
+          registerForm.get('confirmPassword')?.touched
+        )
+        ||
+        (
+          (registerForm.hasError('notMatching') || registerForm.hasError('passwordMismatch')) &&
+          registerForm.get('confirmPassword')?.touched
+        )
+      ">
         <label for="confirmPassword">Confirm Password</label>
+
+        <!-- Errori standard -->
+        @if (registerForm.get('confirmPassword')?.hasError('required') && registerForm.get('confirmPassword')?.touched)
+        {
+        <div class="invalid-feedback text-start">Please enter a confirm password</div>
+        }
+        @if (registerForm.get('confirmPassword')?.hasError('minlength') && registerForm.get('confirmPassword')?.touched)
+        {
+        <div class="invalid-feedback text-start">Minimum confirm password length 4 characters</div>
+        }
+        @if (registerForm.get('confirmPassword')?.hasError('maxlength') && registerForm.get('confirmPassword')?.touched)
+        {
+        <div class="invalid-feedback text-start">Maximum confirm password length 8 characters</div>
+        }
+
+        <!-- Mismatch impostato sul controllo -->
+        @if (registerForm.get('confirmPassword')?.hasError('notMatching') &&
+        registerForm.get('confirmPassword')?.touched) {
+        <div class="invalid-feedback text-start">Le password non coincidono</div>
+        }
+
+        <!-- Mismatch impostato a livello di form -->
+        @if ((registerForm.hasError('notMatching') || registerForm.hasError('passwordMismatch')) &&
+        registerForm.get('confirmPassword')?.touched) {
+        <div class="invalid-feedback text-start">Le password non coincidono</div>
+        }
     </div>
+
+    <!-- Bottoni -->
     <div class="form-group text-center">
         <button type="submit" class="btn btn-primary">Register</button>
         <button type="button" class="btn btn-default" (click)="cancel()">Cancel</button>
     </div>
 </form>
 
-<p>Form value: {{registerForm.value | json}}</p>
-<p>Form status: {{registerForm.status | json}}</p>
+<!-- Debug -->
+<p>Form value: {{ registerForm.value | json }}</p>
+<p>Form status: {{ registerForm.status | json }}</p>
