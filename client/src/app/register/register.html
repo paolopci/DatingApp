@@ -2,10 +2,34 @@
     <h2 class="text-center text-primary">Sign Up</h2>
     <hr>
 
+    <div class="mb-3">
+        <label style="margin-right: 10px">I am a: </label>
+        <label class="form-check-label">
+            <input type="radio" value="male" formControlName="gender">Male
+        </label>
+        <label class="form-check-label">
+            <input type="radio" value="female" formControlName="gender">Female
+        </label>
+    </div>
+
     <!-- Username -->
     <app-text-input [control]="$any(registerForm.get('username'))" [label]="'Username'" [type]="'text'"
-        [requiredMessage]="'Username is required'" />
+        [requiredMessage]="'Username is required'" [id]="'register-username'" />
 
+
+
+    <!-- knownAs -->
+    <app-text-input [control]="$any(registerForm.get('knownAs'))" [label]="'KnownAs'" [type]="'text'"
+        [requiredMessage]="'knownAs is required'" />
+    <!-- dateOfBirth -->
+    <app-text-input [control]="$any(registerForm.get('dateOfBirth'))" [label]="'Date Of Birth'" [type]="'text'"
+        [requiredMessage]="'Date Of  Birth is required'" />
+    <!-- City -->
+    <app-text-input [control]="$any(registerForm.get('city'))" [label]="'City'" [type]="'text'"
+        [requiredMessage]="'City is required'" />
+    <!-- Country -->
+    <app-text-input [control]="$any(registerForm.get('country'))" [label]="'Country'" [type]="'text'"
+        [requiredMessage]="'Country is required'" />
     <!-- Password -->
     <app-text-input [control]="$any(registerForm.get('password'))" [label]="'Password'" [type]="'password'"
         [id]="'password'" />
@@ -14,7 +38,8 @@
     <app-text-input [control]="$any(registerForm.get('confirmPassword'))" [label]="'Confirm Password'"
         [type]="'password'" [id]="'confirmPassword'">
         <!-- Mismatch impostato sul controllo -->
-        @if (registerForm.get('confirmPassword')?.hasError('notMatching') && registerForm.get('confirmPassword')?.touched) {
+        @if (registerForm.get('confirmPassword')?.hasError('notMatching') &&
+        registerForm.get('confirmPassword')?.touched) {
         <div class="invalid-feedback text-start">Le password non coincidono</div>
         }
         <!-- Mismatch impostato a livello di form -->
