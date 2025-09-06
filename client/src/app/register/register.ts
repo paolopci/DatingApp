@@ -2,12 +2,13 @@ import { Component, inject, OnInit, output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { AccountService } from '../_services/account';
 import { JsonPipe, CommonModule } from '@angular/common';
+import { TextInputComponent } from "../_forms/text-input/text-input.component";
 
 
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, JsonPipe, CommonModule],
+  imports: [ReactiveFormsModule, JsonPipe, CommonModule, TextInputComponent],
   standalone: true,
   templateUrl: './register.html',
   styleUrl: './register.css'
@@ -42,6 +43,9 @@ export class Register implements OnInit {
   }
 
   register() {
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+    }
 
     console.log(this.registerForm.value);
 
