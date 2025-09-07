@@ -1,20 +1,96 @@
-<form #registerForm="ngForm" (ngSubmit)="register()" autocomplete="off">
+<!-- Reactive Form di registrazione: [formGroup] lega i controlli al FormGroup in TS -->
+<form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
     <h2 class="text-center text-primary">Sign Up</h2>
     <hr>
-    <div class="mb-3 form-floating">
-        <input type="text" class="form-control" id="userName" name="userName" placeholder="Username"
-            [(ngModel)]="model.userName" required>
-        <label for="userName">Username</label>
+
+    <!-- Selettore di genere -->
+    <div class="mb-3">
+        <label style="margin-right: 10px">I am a: </label>
+        <label class="form-check-label">
+            <input type="radio" value="male" formControlName="gender">Male
+        </label>
+        <label class="form-check-label">
+            <input type="radio" value="female" formControlName="gender">Female
+        </label>
     </div>
 
+    <!-- Username -->
+    <app-text-input [control]="$any(registerForm.get('username'))" [label]="'Username'" [type]="'text'"
+        [requiredMessage]="'Username is required'" [id]="'register-username'" />
+
+
+
+    <!-- knownAs -->
+    <app-text-input [control]="$any(registerForm.get('knownAs'))" [label]="'KnownAs'" [type]="'text'"
+        [requiredMessage]="'knownAs is required'" />
+    <!--
+      Date of Birth (ng-bootstrap Datepicker)
+      - Parser/formatter custom forza dd/MM/yyyy con zeri
+        Vedi: client/src/app/register/ddmmyyyy-ngb-date-parser-formatter.ts
+      - (input)="onDobInput($event)" valida il testo digitato (regex + data reale)
+        Vedi: client/src/app/register/register.ts (metodo onDobInput)
+      - [class.is-invalid] mostra stile errore se formato errato/required
+      - Messaggi di errore sotto l'input
+      - Parsing server-side coerente: API/Controllers/AccountController.cs (Register)
+    -->
     <div class="mb-3 form-floating">
-        <input type="password" class="form-control" id="password" name="password" placeholder="Password"
-            [(ngModel)]="model.password" required>
-        <label for="password">Password</label>
+        <input class="form-control" id="register-date-of-birth" placeholder="Date Of Birth"
+            [formControl]="$any(registerForm.get('dateOfBirth'))" ngbDatepicker #dob="ngbDatepicker"
+            (click)="dob.open()" (input)="onDobInput($event)" [minDate]="minDob" [maxDate]="maxDob" [startDate]="maxDob"
+            [class.is-invalid]="dobFormatInvalid || (registerForm.get('dateOfBirth')?.invalid && (registerForm.get('dateOfBirth')?.touched || registerForm.get('dateOfBirth')?.dirty))" />
+
+        <label for="register-date-of-birth">Date Of Birth</label>
+
+        @if (dobFormatInvalid) {
+        <div class="invalid-feedback text-start d-block">Formato non valido. Usa dd/mm/yyyy (es. 09/04/2025).</div>
+        }
+        @if (registerForm.get('dateOfBirth')?.hasError('required') && (registerForm.get('dateOfBirth')?.touched ||
+        registerForm.get('dateOfBirth')?.dirty)) {
+        <div class="invalid-feedback text-start d-block">Date Of Birth is required</div>
+        }
     </div>
+    <!-- City -->
+    <app-text-input [control]="$any(registerForm.get('city'))" [label]="'City'" [type]="'text'"
+        [requiredMessage]="'City is required'" />
+    <!-- Country -->
+    <app-text-input [control]="$any(registerForm.get('country'))" [label]="'Country'" [type]="'text'"
+        [requiredMessage]="'Country is required'" />
+    <!-- Password -->
+    <app-text-input [control]="$any(registerForm.get('password'))" [label]="'Password'" [type]="'password'"
+        [id]="'password'" />
+
+    <!-- Confirm Password -->
+    <app-text-input [control]="$any(registerForm.get('confirmPassword'))" [label]="'Confirm Password'"
+        [type]="'password'" [id]="'confirmPassword'">
+        <!-- Mismatch impostato sul controllo -->
+        @if (registerForm.get('confirmPassword')?.hasError('notMatching') &&
+        registerForm.get('confirmPassword')?.touched) {
+        <div class="invalid-feedback text-start">Le password non coincidono</div>
+        }
+        <!-- Mismatch impostato a livello di form -->
+        @if ((registerForm.hasError('notMatching') || registerForm.hasError('passwordMismatch')) &&
+        registerForm.get('confirmPassword')?.touched) {
+        <div class="invalid-feedback text-start">Le password non coincidono</div>
+        }
+    </app-text-input>
+    @if(validationErrors){<!-- Se ci sono degli errori li visualizzo -->
+    <div class="alert alert-danger text-start">
+        <ul>
+            @for(error of validationErrors;track $index){
+            <li>{{error}}</li>
+            }
+        </ul>
+    </div>
+    }
+
+    <!-- Bottoni: submit disabilitato se form invalido o data in formato errato -->
     <div class="form-group text-center">
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || dobFormatInvalid"
+            [class.opacity-50]="registerForm.invalid || dobFormatInvalid">Register</button>
         <button type="button" class="btn btn-default" (click)="cancel()">Cancel</button>
     </div>
-
 </form>
+
+<!-- Debug (sviluppo): utile per ispezionare lo stato del form -->
+<p>Form value: {{ registerForm.value | json }}</p>
+<p>Form status: {{ registerForm.status | json }}</p>

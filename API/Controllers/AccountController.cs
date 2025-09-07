@@ -1,11 +1,11 @@
-﻿using System.Security.Cryptography;
-using API.Data;
+﻿using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
-using Microsoft.AspNetCore.Http;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 
 namespace API.Controllers
@@ -15,45 +15,53 @@ namespace API.Controllers
     {
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IMapper _mapper;
 
-        public AccountController(DataContext context, ITokenService tokenService)
+        public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
         {
             _context = context;
             _tokenService = tokenService;
+            _mapper = mapper;
         }
 
         [HttpPost]
         [Route("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-
-            using (var hmac = new HMACSHA512())
+            if (await UserExists(registerDto.Username))
             {
-                if (await UserExists(registerDto.Username))
-                {
-                    return BadRequest("Username is taken");
-                }
-
-                return Ok();
-
-                //var user = new AppUser
-                //{
-                //    UserName = registerDto.Username.ToLower(),
-                //    PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(registerDto.Password)),
-                //    PasswordSalt = hmac.Key
-                //};
-
-                //var token= _tokenService.CreateToken(user);
-                //_context.Users.Add(user);
-                //await _context.SaveChangesAsync();
-
-                //return new UserDto
-                //{
-                //    Username = user.UserName,
-                //    Token = token
-                //};
+                return BadRequest("Username is taken");
             }
 
+            // Map dto -> entity
+            var user = _mapper.Map<AppUser>(registerDto);
+            user.UserName = registerDto.Username!.ToLower();
+
+            // Parse and set date of birth from dd/MM/yyyy
+            if (!string.IsNullOrWhiteSpace(registerDto.DateOfBirth))
+            {
+                if (DateOnly.TryParseExact(registerDto.DateOfBirth!, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out var dob))
+                {
+                    user.DateOfBirth = dob;
+                }
+                else
+                {
+                    return BadRequest("Invalid date format. Use dd/MM/yyyy.");
+                }
+            }
+
+            using var hmac = new HMACSHA512();
+            user.PasswordSalt = hmac.Key;
+            user.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(registerDto.Password));
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var dto = _mapper.Map<UserDto>(user);
+            dto.Token = _tokenService.CreateToken(user);
+            return dto;
         }
 
         [HttpPost]

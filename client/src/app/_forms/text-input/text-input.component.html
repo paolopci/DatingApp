@@ -1,0 +1,28 @@
+<div class="mb-3 form-floating">
+    <input class="form-control" [id]="controlId()" [type]="type()"
+        [placeholder]="label()" [formControl]="control()"
+        [class.is-invalid]="control().invalid && (control().touched || control().dirty)" />
+
+    <label [for]="controlId()">
+        {{ label() }}
+    </label>
+
+    @if (control().hasError('required') && (control().touched || control().dirty)) {
+    <div class="invalid-feedback text-start">{{ requiredMessage() || ('Please enter a ' + label()) }}</div>
+    }
+    @if (control().hasError('minlength') && (control().touched || control().dirty)) {
+    <div class="invalid-feedback text-start">
+        {{ label() }} must be at least
+        {{ control().errors?.['minlength']?.requiredLength }} characters
+    </div>
+    }
+    @if (control().hasError('maxlength') && (control().touched || control().dirty)) {
+    <div class="invalid-feedback text-start">
+        {{ label() }} must be at most
+        {{ control().errors?.['maxlength']?.requiredLength }} characters
+    </div>
+    }
+
+    <!-- Extra projected errors from parent (keeps Bootstrap sibling relation) -->
+    <ng-content></ng-content>
+</div>

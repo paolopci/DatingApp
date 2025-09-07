@@ -42,83 +42,63 @@
 
             <!-- RIGHT: Tabs + content -->
             <div class="col-md-8">
-                <ul class="nav nav-tabs" id="editTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
-                            type="button" role="tab" aria-controls="about" aria-selected="true">
-                            About {{ edit.knownAs }}
-                        </button>
+                <!-- Nav tabs gestiti da ng-bootstrap -->
+                <ul ngbNav #nav="ngbNav" class="nav-tabs">
+                    <li [ngbNavItem]="1">
+                        <button ngbNavLink>About {{ edit.knownAs }}</button>
+                        <ng-template ngbNavContent>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="introduction" [(ngModel)]="edit.introduction" rows="4" class="form-control"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Looking for</label>
+                                <textarea name="lookingFor" [(ngModel)]="edit.lookingFor" rows="4" class="form-control"></textarea>
+                            </div>
+
+                            <h5 class="mt-4 mb-2">Location Details</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">City</label>
+                                    <input type="text" name="city" [(ngModel)]="edit.city" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" name="country" [(ngModel)]="edit.country" class="form-control" />
+                                </div>
+                            </div>
+                        </ng-template>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="interests-tab" data-bs-toggle="tab" data-bs-target="#interests"
-                            type="button" role="tab" aria-controls="interests" aria-selected="false">
-                            Interests
-                        </button>
+
+                    <li [ngbNavItem]="2">
+                        <button ngbNavLink>Interests</button>
+                        <ng-template ngbNavContent>
+                            <p class="text-muted">Interests editor coming soon...</p>
+                            <div class="mb-3">
+                                <label class="form-label">Interests</label>
+                                <textarea name="interests" [(ngModel)]="edit.interests" rows="4" class="form-control"></textarea>
+                            </div>
+                        </ng-template>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos"
-                            type="button" role="tab" aria-controls="photos" aria-selected="false">
-                            Edit Photos
-                        </button>
+
+                    <li [ngbNavItem]="3">
+                        <button ngbNavLink>Edit Photos</button>
+                        <ng-template ngbNavContent>
+                            <p class="text-muted">Photos editor coming soon...</p>
+                            <app-photo-editor [member]="edit"></app-photo-editor>
+                        </ng-template>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages"
-                            type="button" role="tab" aria-controls="messages" aria-selected="false">
-                            Messages
-                        </button>
+
+                    <li [ngbNavItem]="4">
+                        <button ngbNavLink>Messages</button>
+                        <ng-template ngbNavContent>
+                            <p class="text-muted">Messages editor coming soon...</p>
+                        </ng-template>
                     </li>
                 </ul>
 
-                <div class="tab-content mt-3" id="editTabsContent">
-                    <!-- TAB ABOUT -->
-                    <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
-
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="introduction" [(ngModel)]="edit.introduction" rows="4"
-                                class="form-control"></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Looking for</label>
-                            <textarea name="lookingFor" [(ngModel)]="edit.lookingFor" rows="4"
-                                class="form-control"></textarea>
-                        </div>
-
-                        <h5 class="mt-4 mb-2">Location Details</h5>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">City</label>
-                                <input type="text" name="city" [(ngModel)]="edit.city" class="form-control" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Country</label>
-                                <input type="text" name="country" [(ngModel)]="edit.country" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TAB PHOTOS -->
-                    <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
-                        <p class="text-muted">Photos editor coming soon...</p>
-                        <app-photo-editor [member]="edit"></app-photo-editor>
-                    </div>
-
-                    <!-- TAB INTERESTS -->
-                    <div class="tab-pane fade" id="interests" role="tabpanel" aria-labelledby="interests-tab">
-                        <p class="text-muted">Interests editor coming soon...</p>
-                        <div class="mb-3">
-                            <label class="form-label">Interests</label>
-                            <textarea name="interests" [(ngModel)]="edit.interests" rows="4"
-                                class="form-control"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- TAB MESSAGES -->
-                    <div class="tab-pane fade" id="messages" role="tabpanel" aria-labelledby="messages-tab">
-                        <p class="text-muted">Messages editor coming soon...</p>
-                    </div>
-                </div>
+                <div [ngbNavOutlet]="nav" class="mt-3"></div>
             </div>
         </div>
     </div>

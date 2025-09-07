@@ -4,11 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { Member } from '../../_models/member';
 import { Photo } from '../../_models/photo';
 import { CommonModule } from '@angular/common';
+import { NgbNavModule, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
   selector: 'app-member-detail',
-  imports: [CommonModule],
+  imports: [CommonModule, NgbNavModule, NgbCarouselModule],
   standalone: true,
   templateUrl: './member-detail.html',
   styleUrl: './member-detail.css'

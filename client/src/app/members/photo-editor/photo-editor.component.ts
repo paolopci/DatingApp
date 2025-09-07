@@ -138,6 +138,12 @@ export class PhotoEditorComponent {
         }
         const target = m.photos.find(p => p.id === photo.id);
         if (target) target.isMain = true;
+        // Aggiorna anche l'avatar del profilo mostrato nelle viste che leggono photoUrl
+        // (es. Your profile nella Member Edit)
+        (m as any).photoUrl = photo.url;
+
+        // Allinea anche la cache della lista membri (card ecc.)
+        this.memberService.syncMainPhotoLocal(m.username, photo.id!, photo.url);
         // 2) Aggiorna la navbar (currentUser.photoUrl) senza richiedere un nuovo login
         this.accountService.currentUser.update(u => {
           if (!u) return u;
