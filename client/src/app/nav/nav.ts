@@ -4,13 +4,14 @@ import { AccountService } from '../_services/account'; // Assuming Account servi
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Toast } from '../_services/toast';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 // Aggiorna il percorso se necessario
 
 @Component({
   selector: 'app-nav',
-  imports: [FormsModule, CommonModule, RouterLink, RouterLinkActive, TitleCasePipe],
+  imports: [FormsModule, CommonModule, RouterLink, RouterLinkActive, TitleCasePipe, NgbDropdownModule],
   standalone: true,
   templateUrl: './nav.html',
   styleUrl: './nav.css'

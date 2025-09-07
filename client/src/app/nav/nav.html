@@ -22,18 +22,18 @@
         </ul>
 
         @if(accountService.currentUser()) {
-        <div class="dropdown">
+        <!-- Dropdown ng-bootstrap (no JS di Bootstrap richiesto) -->
+        <div ngbDropdown class="dropdown">
             <img class="me-2" src="{{accountService.currentUser()?.photoUrl || 'assets/user.png'}}" alt="">
-            <a class="dropdown-toggle text-light text-decoration-none" type="button" data-bs-toggle="dropdown"
+            <a ngbDropdownToggle class="dropdown-toggle text-light text-decoration-none" role="button"
                 aria-expanded="false">
                 Welcome {{ accountService.currentUser()?.username | titlecase}}
             </a>
-            <ul class="dropdown-menu">
-                <a routerLink="/member/edit" class="dropdown-item">Edit Profile</a>
-                <a class="dropdown-divider"></a>
-
-                <a class="dropdown-item" (click)="logout()">Logout</a>
-            </ul>
+            <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+                <a routerLink="/member/edit" class="dropdown-item" ngbDropdownItem>Edit Profile</a>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" type="button" (click)="logout()" ngbDropdownItem>Logout</button>
+            </div>
         </div>
         } @if(!accountService.currentUser()) {
         <form #loginForm="ngForm" class="d-flex" (ngSubmit)="login()" autocomplete="off">

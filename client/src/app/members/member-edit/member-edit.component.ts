@@ -6,11 +6,12 @@ import { AccountService } from '../../_services/account';
 import { Toast } from '../../_services/toast';
 import { Member } from '../../_models/member';
 import { PhotoEditorComponent } from "../photo-editor/photo-editor.component";
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-member-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, PhotoEditorComponent],
+  imports: [CommonModule, FormsModule, PhotoEditorComponent, NgbNavModule],
   templateUrl: './member-edit.component.html',
   styleUrls: ['./member-edit.component.css']
 })
