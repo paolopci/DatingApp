@@ -11,6 +11,7 @@ Questo README è precompilato e adattato al progetto attuale (API .NET 8 + clien
 - Avvio rapido (locale)
 - Configurazione ambienti e variabili
 - Front-end (Angular 20 + Signals)
+- Formato data (dd/MM/yyyy)
 - Back-end (.NET 8 API)
 - Qualità, test e CI/CD
 - Sicurezza e osservabilità
@@ -107,6 +108,16 @@ npm run start:https   # HTTPS con cert locali
 npm run build         # build prod
 npm test              # unit test (Karma)
 ```
+
+## Formato data (dd/MM/yyyy)
+
+- Front-end: il campo data di nascita nel componente `register` usa ng-bootstrap Datepicker con un `NgbDateParserFormatter` personalizzato per accettare e mostrare SOLO `dd/MM/yyyy` con zeri iniziali.
+  - File: `client/src/app/register/ddmmyyyy-ngb-date-parser-formatter.ts`
+  - Validazione input testo nel componente: `onDobInput()` in `client/src/app/register/register.ts` aggiunge un errore `dateFormat` se il testo non rispetta il formato.
+- Back-end: l'azione `Register` in `API/Controllers/AccountController.cs` analizza `DateOfBirth` con `DateOnly.TryParseExact(..., "dd/MM/yyyy", ...)` e rifiuta il formato non valido (400 BadRequest).
+- AutoMapper: la mappa `RegisterDto -> AppUser` ignora `DateOfBirth` perché viene impostata dopo il parsing esplicito; vedi `API/Helpers/AutoMapperProfiles.cs`.
+
+Per cambiare formato, aggiornare sia il formatter/regex nel front-end sia il parsing in controller e la documentazione.
 
 ## Back-end (.NET 8 API)
 
