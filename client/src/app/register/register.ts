@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { NgbDatepickerModule, NgbDateStruct, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
-import { LocalizedNgbDateParserFormatter } from './localized-ngb-date-parser-formatter';
+import { DdmmyyyyNgbDateParserFormatter, DDMYYYY_REGEX } from './ddmmyyyy-ngb-date-parser-formatter';
 import { AccountService } from '../_services/account';
 import { JsonPipe, CommonModule } from '@angular/common';
 import { TextInputComponent } from "../_forms/text-input/text-input.component";
@@ -15,7 +15,8 @@ import { TextInputComponent } from "../_forms/text-input/text-input.component";
   templateUrl: './register.html',
   styleUrl: './register.css',
   providers: [
-    { provide: NgbDateParserFormatter, useClass: LocalizedNgbDateParserFormatter }
+    // Enforce strict dd/MM/yyyy parsing/formatting for ng-bootstrap datepicker
+    { provide: NgbDateParserFormatter, useClass: DdmmyyyyNgbDateParserFormatter }
   ]
 })
 export class Register implements OnInit {
@@ -32,6 +33,10 @@ export class Register implements OnInit {
     const t = new Date();
     return { year: t.getFullYear(), month: t.getMonth() + 1, day: t.getDate() };
   })();
+
+  // Track raw input text to validate exact dd/MM/yyyy pattern
+  private rawDob: string = '';
+  dobFormatInvalid = false;
 
 
   ngOnInit(): void {
@@ -52,6 +57,14 @@ export class Register implements OnInit {
     this.registerForm.get('password')!.valueChanges.subscribe(() => {
       this.registerForm.get('confirmPassword')!.updateValueAndValidity({ onlySelf: true });
     });
+
+    // When a date is picked from popup, ensure formatted string is valid and clear format error
+    this.registerForm.get('dateOfBirth')!.valueChanges.subscribe(val => {
+      if (val && typeof val === 'object') {
+        // Value is NgbDateStruct; formatter takes care of display, our pattern is always satisfied
+        this.dobFormatInvalid = false;
+      }
+    });
   }
 
 
@@ -62,9 +75,9 @@ export class Register implements OnInit {
   }
 
   register() {
-    if (this.registerForm.invalid) {
+    if (this.registerForm.invalid || this.dobFormatInvalid) {
       this.registerForm.markAllAsTouched();
-    }
+      }
 
     console.log(this.registerForm.value);
 
@@ -82,5 +95,35 @@ export class Register implements OnInit {
 
   cancel() {
     this.cancelRegister.emit(false);
+  }
+
+  // Helpers for DOB field
+  get dobCtrl(): AbstractControl | null { return this.registerForm.get('dateOfBirth'); }
+
+  onDobInput(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    this.rawDob = input.value ?? '';
+    this.dobFormatInvalid = this.rawDob.length > 0 && !this.isValidDdMmYyyy(this.rawDob);
+
+    const ctrl = this.dobCtrl;
+    if (ctrl) {
+      const current = ctrl.errors || {};
+      if (this.dobFormatInvalid) {
+        ctrl.setErrors({ ...current, dateFormat: true });
+      } else if ('dateFormat' in current) {
+        const { dateFormat, ...rest } = current as any;
+        ctrl.setErrors(Object.keys(rest).length ? rest : null);
+      }
+    }
+  }
+
+  private isValidDdMmYyyy(v: string): boolean {
+    const m = v.match(DDMYYYY_REGEX);
+    if (!m) return false;
+    const day = parseInt(m[1], 10);
+    const month = parseInt(m[2], 10);
+    const year = parseInt(m[3], 10);
+    const d = new Date(year, month - 1, day);
+    return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
   }
 }
