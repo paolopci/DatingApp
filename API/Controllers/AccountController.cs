@@ -87,12 +87,10 @@ namespace API.Controllers
                 }
             }
 
-            return new UserDto
-            {
-                Username = user.UserName,
-                Token = _tokenService.CreateToken(user),
-                PhotoUrl = user.Photos.FirstOrDefault(x=>x.IsMain)?.Url
-            };
+            // Mappa l'utente su UserDto per includere anche KnownAs e PhotoUrl
+            var userDto = _mapper.Map<UserDto>(user);
+            userDto.Token = _tokenService.CreateToken(user);
+            return userDto;
         }
 
 
