@@ -26,7 +26,10 @@ namespace API.Helpers
 
         public string? Gender { get; set; }
         public string? CurrentUsername { get; set; }
+        public int MinAge { get; set; } = 18; // imposto 18 come valore min iniziale
+        public int MaxAge { get; set; } = 100; // imposto 100 come valore max iniziale
 
     }
 }
+
 
