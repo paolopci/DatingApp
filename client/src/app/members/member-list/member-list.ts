@@ -1,33 +1,55 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MembersService } from '../../_services/members.service';
-import { Member } from '../../_models/member';
-import { MemberCardComponent } from '../member-card/member-card.component';
-import { Paginator } from '../../_models/pagination';
+import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
-
-
+import { MembersService } from '../../_services/members.service';
+import { AccountService } from '../../_services/account';
+import { Member } from '../../_models/member';
+import { Paginator } from '../../_models/pagination';
+import { User } from '../../_models/User';
+import { MemberCardComponent } from '../member-card/member-card.component';
 
 @Component({
   selector: 'app-member-list',
-  imports: [MemberCardComponent, NgbPaginationModule],
   standalone: true,
+  imports: [MemberCardComponent, NgbPaginationModule, FormsModule],
   templateUrl: './member-list.html',
   styleUrl: './member-list.css'
 })
 export class MemberList implements OnInit {
   private memberService = inject(MembersService);
+  private accountService = inject(AccountService);
+
   members: Member[] = [];
   pageNumber = 1;
   pageSize = 5;
   pagination?: Paginator;
 
+  // Filtri
+  gender: string = '';
+  minAge: number = 18;
+  maxAge: number = 100;
+
+  private readonly filterStorageKey = 'memberListFilters';
 
   ngOnInit(): void {
+    this.loadFilters();
+    const current: User | null = this.accountService.currentUser();
+    if (!this.gender && current?.gender) {
+      const g = current.gender.toLowerCase();
+      this.gender = g === 'male' ? 'female' : g === 'female' ? 'male' : '';
+    }
     this.loadMembers();
   }
 
   loadMembers() {
-    this.memberService.getMembers(this.pageNumber, this.pageSize).subscribe({
+    this.saveFilters();
+    this.memberService.getMembersFiltered({
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      gender: this.gender || undefined,
+      minAge: this.minAge,
+      maxAge: this.maxAge
+    }).subscribe({
       next: members => {
         this.members = members;
         const pr = this.memberService.paginatedResult();
@@ -50,8 +72,46 @@ export class MemberList implements OnInit {
     if (!Number.isFinite(newSize) || newSize <= 0) return;
     if (this.pageSize === newSize) return;
     this.pageSize = newSize;
-    this.pageNumber = 1; // resetto alla prima pagina quando cambia la dimensione
+    this.pageNumber = 1;
     this.loadMembers();
   }
 
+  applyFilters() {
+    this.pageNumber = 1;
+    this.loadMembers();
+  }
+
+  resetFilters() {
+    const current: User | null = this.accountService.currentUser();
+    this.gender = current?.gender ? (current.gender.toLowerCase() === 'male' ? 'female' : current.gender.toLowerCase() === 'female' ? 'male' : '') : '';
+    this.minAge = 18;
+    this.maxAge = 100;
+    this.pageNumber = 1;
+    this.loadMembers();
+  }
+
+  private saveFilters() {
+    const data = {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      gender: this.gender,
+      minAge: this.minAge,
+      maxAge: this.maxAge
+    };
+    try { localStorage.setItem(this.filterStorageKey, JSON.stringify(data)); } catch {}
+  }
+
+  private loadFilters() {
+    try {
+      const raw = localStorage.getItem(this.filterStorageKey);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (typeof data.pageNumber === 'number') this.pageNumber = data.pageNumber;
+      if (typeof data.pageSize === 'number') this.pageSize = data.pageSize;
+      if (typeof data.gender === 'string') this.gender = data.gender;
+      if (typeof data.minAge === 'number') this.minAge = data.minAge;
+      if (typeof data.maxAge === 'number') this.maxAge = data.maxAge;
+    } catch {}
+  }
 }
+

@@ -4,7 +4,6 @@ import { environment } from '../../environments/environment';
 import { Member } from '../_models/member';
 import { map, of, tap } from 'rxjs';
 import { PaginatedResult } from '../_models/paginatedResult';
-import { UserParams } from '../_models/userParams';
 
 
 @Injectable({
@@ -80,28 +79,5 @@ export class MembersService {
       return { ...m, photoUrl: photoUrl, photos: updatedPhotos } as Member;
     }));
   }
-
-  // Versione con filtri e paginazione
-  getMembersFiltered(paramsIn: UserParams) {
-    let params = new HttpParams()
-      .set('pageNumber', paramsIn.pageNumber.toString())
-      .set('pageSize', paramsIn.pageSize.toString());
-
-    if (paramsIn.gender) params = params.set('gender', paramsIn.gender.toLowerCase());
-    if (typeof paramsIn.minAge === 'number') params = params.set('minAge', String(paramsIn.minAge));
-    if (typeof paramsIn.maxAge === 'number') params = params.set('maxAge', String(paramsIn.maxAge));
-
-    return this.http.get<Member[]>(this.baseUrl + 'users', { observe: 'response', params })
-      .pipe(
-        map(resp => {
-          const items = resp.body ?? [];
-          const paginationHeader = resp.headers.get('Pagination');
-          const pagination = paginationHeader ? JSON.parse(paginationHeader) : undefined;
-
-          this.members.set(items);
-          this.paginatedResult.set({ items, pagination });
-          return items;
-        })
-      );
-  }
 }
+

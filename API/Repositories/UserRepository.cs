@@ -58,6 +58,28 @@ namespace API.Repositories
                 query = query.Where(u => u.Gender == userParams.Gender);
             }
 
+            // Filtra per età inclusiva: Age >= MinAge e Age <= MaxAge
+            // Traduzione su DateOfBirth:
+            // - Age <= MaxAge => DateOfBirth >= today - MaxAge anni (nati dopo/uguale)
+            // - Age >= MinAge => DateOfBirth <= today - MinAge anni (nati prima/uguale)
+            if (userParams.MinAge > 0 || userParams.MaxAge > 0)
+            {
+                var minAge = userParams.MinAge;
+                var maxAge = userParams.MaxAge;
+
+                // Normalizza se invertiti
+                if (minAge > maxAge)
+                {
+                    var tmp = minAge; minAge = maxAge; maxAge = tmp;
+                }
+
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                var minDobInclusive = today.AddYears(-maxAge); // più giovane di MaxAge (>=)
+                var maxDobInclusive = today.AddYears(-minAge); // più vecchio di MinAge (<=)
+
+                query = query.Where(u => u.DateOfBirth >= minDobInclusive && u.DateOfBirth <= maxDobInclusive);
+            }
+
             var projected = query
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
                 .AsNoTracking();

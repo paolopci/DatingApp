@@ -1,3 +1,26 @@
+<div class="row g-3 align-items-end mb-3">
+  <div class="col-12 col-md-3">
+    <label class="form-label">Genere</label>
+    <select class="form-select" [(ngModel)]="gender">
+      <option value="">Tutti</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+  </div>
+  <div class="col-6 col-md-3">
+    <label class="form-label">Età minima</label>
+    <input type="number" class="form-control" [(ngModel)]="minAge" min="18" max="120">
+  </div>
+  <div class="col-6 col-md-3">
+    <label class="form-label">Età massima</label>
+    <input type="number" class="form-control" [(ngModel)]="maxAge" min="18" max="120">
+  </div>
+  <div class="col-12 col-md-3 d-flex gap-2">
+    <button class="btn btn-primary flex-fill" (click)="applyFilters()">Filtra</button>
+    <button class="btn btn-outline-secondary flex-fill" (click)="resetFilters()">Reset</button>
+  </div>
+</div>
+
 <div class="row">
   @for(member of members; track member.id) {
   <div class="col-2">
@@ -36,4 +59,3 @@
     </div>
   </div>
 }
-
