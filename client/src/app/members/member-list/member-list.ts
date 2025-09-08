@@ -20,7 +20,6 @@ export class MemberList implements OnInit {
   pageNumber = 1;
   pageSize = 5;
   pagination?: Paginator;
-  pages: number[] = [];
 
 
   ngOnInit(): void {
@@ -33,7 +32,6 @@ export class MemberList implements OnInit {
         this.members = members;
         const pr = this.memberService.paginatedResult();
         this.pagination = pr?.pagination ?? undefined;
-        this.pages = Array.from({ length: this.pagination?.totalPages ?? 0 }, (_, i) => i + 1);
       },
       error: error => console.log(error),
       complete: () => console.log('Request has completed')

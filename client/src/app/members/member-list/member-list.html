@@ -1,38 +1,39 @@
 <div class="row">
-    @for(member of members; track member.id) {
-    <div class="col-2">
-        <app-member-card [member]="member" />
-    </div>
-    }
+  @for(member of members; track member.id) {
+  <div class="col-2">
+    <app-member-card [member]="member" />
+  </div>
+  }
 </div>
 
 @if (pagination) {
-  <div class="d-flex justify-content-between align-items-center my-3 gap-3 flex-wrap">
-    <div>
-      Pagina {{ pagination.currentPage }} di {{ pagination.totalPages }}
-      • Totale elementi: {{ pagination.totalItems }}
+  <div class="row align-items-center my-3">
+    <div class="col-12 col-md-4 d-none d-md-block"></div>
+    <div class="col-12 col-md-4 d-flex justify-content-center order-1 order-md-2">
+      <ngb-pagination
+        [collectionSize]="pagination.totalItems"
+        [pageSize]="pageSize"
+        [maxSize]="5"
+        [boundaryLinks]="true"
+        [ellipses]="true"
+        [rotate]="true"
+        [page]="pageNumber"
+        (pageChange)="pageChanged($event)">
+      </ngb-pagination>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <label class="me-1">Elementi per pagina</label>
-      <select #ps class="form-select form-select-sm" style="width: auto;"
-              [value]="pageSize"
-              (change)="onPageSizeChange(ps.value)">
-        <option [value]="5">5</option>
-        <option [value]="10">10</option>
-        <option [value]="20">20</option>
-        <option [value]="50">50</option>
-      </select>
+    <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center order-2 order-md-3 mt-2 mt-md-0">
+      <div class="d-flex align-items-center gap-2">
+        <label class="me-1 mb-0">Elementi per pagina</label>
+        <select #ps class="form-select form-select-sm" style="width: auto;"
+                [value]="pageSize"
+                (change)="onPageSizeChange(ps.value)">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
     </div>
-    <ngb-pagination
-      [collectionSize]="pagination.totalItems"
-      [pageSize]="pageSize"
-      [maxSize]="5"
-      [boundaryLinks]="true"
-      [ellipses]="true"
-      [rotate]="true"
-      [page]="pageNumber"
-      (pageChange)="pageChanged($event)">
-    </ngb-pagination>
   </div>
-
 }
+

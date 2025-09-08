@@ -40,12 +40,29 @@ namespace API.Repositories
             return await _context.Users.Include(x => x.Photos).SingleOrDefaultAsync(x => x.UserName == username);
         }
 
-        
+
 
         public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
         {
-            var query = _context.Users.ProjectTo<MemberDto>(_mapper.ConfigurationProvider);
-            return await PagedList<MemberDto>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
+            var query = _context.Users.AsQueryable();
+
+            // Esclude l'utente corrente
+            if (!string.IsNullOrWhiteSpace(userParams.CurrentUsername))
+            {
+                query = query.Where(u => u.UserName != userParams.CurrentUsername);
+            }
+
+            // Filtra per genere se specificato
+            if (!string.IsNullOrWhiteSpace(userParams.Gender))
+            {
+                query = query.Where(u => u.Gender == userParams.Gender);
+            }
+
+            var projected = query
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                .AsNoTracking();
+
+            return await PagedList<MemberDto>.CreateAsync(projected, userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<MemberDto?> GetMemberAsync(string username)
@@ -55,6 +72,6 @@ namespace API.Repositories
                                        .SingleOrDefaultAsync();
         }
 
-       
+
     }
 }
