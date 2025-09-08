@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Member } from '../_models/member';
 import { map, of, tap } from 'rxjs';
+import { PaginatedResult } from '../_models/paginatedResult';
 
 
 @Injectable({
@@ -12,9 +13,31 @@ export class MembersService {
   private http = inject(HttpClient);
   baseUrl = environment.apiUrl;
   members = signal<Member[]>([]);
+  paginatedResult = signal<PaginatedResult<Member[]> | null>(null);
 
 
-  getMembers() {
+  getMembers(pageNumber?: number, pageSize?: number) {
+    // Se è richiesta paginazione, esegue la chiamata con observe:'response' per leggere gli header
+    if (pageNumber && pageSize) {
+      const params = new HttpParams()
+        .set('pageNumber', pageNumber.toString())
+        .set('pageSize', pageSize.toString());
+
+      return this.http.get<Member[]>(this.baseUrl + 'users', { observe: 'response', params })
+        .pipe(
+          map(resp => {
+            const items = resp.body ?? [];
+            const paginationHeader = resp.headers.get('Pagination');
+            const pagination = paginationHeader ? JSON.parse(paginationHeader) : undefined;
+
+            this.members.set(items);
+            this.paginatedResult.set({ items, pagination });
+            return items;
+          })
+        );
+    }
+
+    // Senza paginazione: usa la cache se presente, altrimenti chiama l'API semplice
     if (this.members().length > 0) return of(this.members());
 
     return this.http.get<Member[]>(this.baseUrl + 'users').pipe(

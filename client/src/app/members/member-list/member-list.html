@@ -5,3 +5,34 @@
     </div>
     }
 </div>
+
+@if (pagination) {
+  <div class="d-flex justify-content-between align-items-center my-3 gap-3 flex-wrap">
+    <div>
+      Pagina {{ pagination.currentPage }} di {{ pagination.totalPages }}
+      • Totale elementi: {{ pagination.totalItems }}
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <label class="me-1">Elementi per pagina</label>
+      <select #ps class="form-select form-select-sm" style="width: auto;"
+              [value]="pageSize"
+              (change)="onPageSizeChange(ps.value)">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+    </div>
+    <ngb-pagination
+      [collectionSize]="pagination.totalItems"
+      [pageSize]="pageSize"
+      [maxSize]="5"
+      [boundaryLinks]="true"
+      [ellipses]="true"
+      [rotate]="true"
+      [page]="pageNumber"
+      (pageChange)="pageChanged($event)">
+    </ngb-pagination>
+  </div>
+
+}
