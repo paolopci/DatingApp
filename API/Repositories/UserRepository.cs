@@ -80,6 +80,21 @@ namespace API.Repositories
                 query = query.Where(u => u.DateOfBirth >= minDobInclusive && u.DateOfBirth <= maxDobInclusive);
             }
 
+            // Ordinamento combinando campo e direzione richiesti:
+            // - Campo: userParams.OrderBy ("created" | "lastActive")
+            // - Direzione: userParams.Sort ("asc" | "desc", default: "desc")
+            var orderBy = (userParams.OrderBy ?? string.Empty).Trim().ToLowerInvariant();
+            var dir = (userParams.Sort ?? "desc").Trim().ToLowerInvariant();
+            var ascending = dir == "asc";
+
+            query = orderBy switch
+            {
+                "created" => ascending ? query.OrderBy(u => u.Created)
+                                        : query.OrderByDescending(u => u.Created),
+                _ => ascending ? query.OrderBy(u => u.LastActive)
+                                : query.OrderByDescending(u => u.LastActive)
+            };
+
             var projected = query
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
                 .AsNoTracking();
