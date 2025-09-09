@@ -20,19 +20,29 @@
     <button class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">Reset</button>
   </div>
   <div class="col-12 col-md d-flex align-items-end justify-content-end">
-    <div class="btn-group order-controls" role="group" aria-label="Order controls">
-      <button type="button" class="btn btn-sm btn-outline-primary text-nowrap"
-              (click)="onSortClick('created')">
+    <div class="btn-group order-controls ms-3" role="group" aria-label="Order controls">
+      <button type="button" class="btn btn-sm text-nowrap"
+              [class.btn-primary]="orderBy === 'created'"
+              [class.btn-outline-primary]="orderBy !== 'created'"
+              [attr.aria-pressed]="orderBy === 'created'"
+              (click)="onSortClick('created'); refreshTooltip(createdTip)"
+              [ngbTooltip]="tooltipFor('created')" #createdTip="ngbTooltip" triggers="manual"
+              (mouseenter)="createdTip.open()" (mouseleave)="createdTip.close()" placement="bottom">
         Newest Members
         @if (orderBy === 'created') {
-          <i class="fa ms-1" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
+          <i class="fa ms-1 text-primary" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
         }
       </button>
-      <button type="button" class="btn btn-sm btn-outline-primary text-nowrap"
-              (click)="onSortClick('lastActive')">
+      <button type="button" class="btn btn-sm text-nowrap"
+              [class.btn-primary]="orderBy === 'lastActive'"
+              [class.btn-outline-primary]="orderBy !== 'lastActive'"
+              [attr.aria-pressed]="orderBy === 'lastActive'"
+              (click)="onSortClick('lastActive'); refreshTooltip(lastTip)"
+              [ngbTooltip]="tooltipFor('lastActive')" #lastTip="ngbTooltip" triggers="manual"
+              (mouseenter)="lastTip.open()" (mouseleave)="lastTip.close()" placement="bottom">
         Last Active
         @if (orderBy === 'lastActive') {
-          <i class="fa ms-1" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
+          <i class="fa ms-1 text-primary" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
         }
       </button>
     </div>

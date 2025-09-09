@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbPaginationModule, NgbTooltipModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { MembersService } from '../../_services/members.service';
 import { AccountService } from '../../_services/account';
 import { Member } from '../../_models/member';
@@ -11,7 +11,7 @@ import { MemberCardComponent } from '../member-card/member-card.component';
 @Component({
   selector: 'app-member-list',
   standalone: true,
-  imports: [MemberCardComponent, NgbPaginationModule, FormsModule],
+  imports: [MemberCardComponent, NgbPaginationModule, NgbTooltipModule, FormsModule],
   templateUrl: './member-list.html',
   styleUrl: './member-list.css'
 })
@@ -30,6 +30,7 @@ export class MemberList implements OnInit {
   maxAge: number = 100;
   orderBy: 'created' | 'lastActive' = 'lastActive';
   orderDirection: 'asc' | 'desc' = 'desc';
+  orderDirByField: Record<'created' | 'lastActive', 'asc' | 'desc'> = { created: 'desc', lastActive: 'desc' };
 
   private readonly filterStorageKey = 'memberListFilters';
 
@@ -99,12 +100,26 @@ export class MemberList implements OnInit {
   onSortClick(field: 'created' | 'lastActive') {
     if (this.orderBy === field) {
       this.orderDirection = this.orderDirection === 'asc' ? 'desc' : 'asc';
+      this.orderDirByField[field] = this.orderDirection;
     } else {
       this.orderBy = field;
-      this.orderDirection = 'desc';
+      this.orderDirection = this.orderDirByField[field] ?? 'desc';
     }
     this.pageNumber = 1;
     this.loadMembers();
+  }
+
+  tooltipFor(field: 'created' | 'lastActive') {
+    const dir = this.orderBy === field ? this.orderDirection : this.orderDirByField[field];
+    return dir === 'asc' ? 'Ascendente' : 'Discendente';
+  }
+
+  refreshTooltip(tip: NgbTooltip) {
+    // Close and reopen to force content refresh while hovered
+    try {
+      tip.close();
+      setTimeout(() => tip.open(), 0);
+    } catch { }
   }
 
   private saveFilters() {
@@ -115,7 +130,8 @@ export class MemberList implements OnInit {
       minAge: this.minAge,
       maxAge: this.maxAge,
       orderBy: this.orderBy,
-      orderDirection: this.orderDirection
+      orderDirection: this.orderDirection,
+      orderDirByField: this.orderDirByField
     };
     try { localStorage.setItem(this.filterStorageKey, JSON.stringify(data)); } catch {}
   }
@@ -132,6 +148,10 @@ export class MemberList implements OnInit {
       if (typeof data.maxAge === 'number') this.maxAge = data.maxAge;
       if (data.orderBy === 'created' || data.orderBy === 'lastActive') this.orderBy = data.orderBy;
       if (data.orderDirection === 'asc' || data.orderDirection === 'desc') this.orderDirection = data.orderDirection;
+      if (data.orderDirByField && (data.orderDirByField.created === 'asc' || data.orderDirByField.created === 'desc')
+        && (data.orderDirByField.lastActive === 'asc' || data.orderDirByField.lastActive === 'desc')) {
+        this.orderDirByField = data.orderDirByField;
+      }
     } catch {}
   }
 }
