@@ -90,6 +90,10 @@ export class MembersService {
     if (paramsIn.gender) params = params.set('gender', paramsIn.gender.toLowerCase());
     if (typeof paramsIn.minAge === 'number') params = params.set('minAge', String(paramsIn.minAge));
     if (typeof paramsIn.maxAge === 'number') params = params.set('maxAge', String(paramsIn.maxAge));
+    if (paramsIn.orderBy) params = params.set('orderBy', paramsIn.orderBy);
+    if (paramsIn.orderDirection) {
+      params = params.set('orderDirection', paramsIn.orderDirection);
+    }
 
     return this.http.get<Member[]>(this.baseUrl + 'users', { observe: 'response', params })
       .pipe(

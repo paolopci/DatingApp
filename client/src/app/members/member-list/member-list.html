@@ -1,23 +1,41 @@
 <div class="row g-3 align-items-end mb-3">
-  <div class="col-12 col-md-3">
+  <div class="col-12 col-md-2">
     <label class="form-label">Genere</label>
-    <select class="form-select" [(ngModel)]="gender">
+    <select class="form-select form-select-sm" [(ngModel)]="gender">
       <option value="">Tutti</option>
       <option value="male">Male</option>
       <option value="female">Female</option>
     </select>
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-2">
     <label class="form-label">Età minima</label>
-    <input type="number" class="form-control" [(ngModel)]="minAge" min="18" max="120">
+    <input type="number" class="form-control form-control-sm" [(ngModel)]="minAge" min="18" max="120">
   </div>
-  <div class="col-6 col-md-3">
+  <div class="col-6 col-md-2">
     <label class="form-label">Età massima</label>
-    <input type="number" class="form-control" [(ngModel)]="maxAge" min="18" max="120">
+    <input type="number" class="form-control form-control-sm" [(ngModel)]="maxAge" min="18" max="120">
   </div>
-  <div class="col-12 col-md-3 d-flex gap-2">
-    <button class="btn btn-primary flex-fill" (click)="applyFilters()">Filtra</button>
-    <button class="btn btn-outline-secondary flex-fill" (click)="resetFilters()">Reset</button>
+  <div class="col-12 col-md-auto d-flex gap-2 align-items-end flex-nowrap">
+    <button class="btn btn-sm btn-primary" (click)="applyFilters()">Filtra</button>
+    <button class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">Reset</button>
+  </div>
+  <div class="col-12 col-md d-flex align-items-end justify-content-end">
+    <div class="btn-group order-controls" role="group" aria-label="Order controls">
+      <button type="button" class="btn btn-sm btn-outline-primary text-nowrap"
+              (click)="onSortClick('created')">
+        Newest Members
+        @if (orderBy === 'created') {
+          <i class="fa ms-1" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
+        }
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-primary text-nowrap"
+              (click)="onSortClick('lastActive')">
+        Last Active
+        @if (orderBy === 'lastActive') {
+          <i class="fa ms-1" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
+        }
+      </button>
+    </div>
   </div>
 </div>
 

@@ -1,0 +1,4 @@
+/* Keep sort buttons on a single line and aligned with action buttons */
+.order-controls .btn {
+  white-space: nowrap;
+}
