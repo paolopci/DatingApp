@@ -26,12 +26,12 @@
 
                 <div class="mb-3">
                     <div class="fw-bold">Last Active:</div>
-                    <div>{{ edit.lastActive }}</div>
+                    <div>{{ edit.lastActive | date:'dd MMM yyyy, HH:mm:ss' }}</div>
                 </div>
 
                 <div class="mb-4">
                     <div class="fw-bold">Member since:</div>
-                    <div>{{ edit.created }}</div>
+                    <div>{{ edit.created | date:'dd MMM yyyy, HH:mm:ss' }}</div>
                 </div>
 
                 <button type="submit" class="btn btn-success w-100"
