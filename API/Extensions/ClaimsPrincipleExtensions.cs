@@ -7,10 +7,22 @@ namespace API.Extensions
     {
         public static string GetUsername(this ClaimsPrincipal user)
         {
-            var username = user.FindFirstValue(ClaimTypes.NameIdentifier)
-                                  ?? throw new Exception("Username claim not found in token.");
+            // Prefer the standard Name claim (mapped from unique_name),
+            // fall back to NameIdentifier only if present for backward compatibility.
+            var username = user.FindFirstValue(ClaimTypes.Name)
+                           ?? user.FindFirstValue(ClaimTypes.NameIdentifier)
+                           ?? throw new Exception("Username claim not found in token.");
 
             return username;
+        }
+
+        public static int GetUserId(this ClaimsPrincipal user)
+        {
+            var userId =int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                           throw new Exception("Cannot get username from token"));
+
+
+            return userId;
         }
     }
 }

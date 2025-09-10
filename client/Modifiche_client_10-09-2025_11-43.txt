@@ -1,0 +1,8 @@
+﻿Data e ora creazione: 10-09-2025_11-43
+File modificati:
+/src/app/_services/members.service.ts
+- Aggiunto stato in-memory per ricordare i filtri (UserParams) con get/set/reset
+/src/app/members/member-list/member-list.ts
+- Inizializzazione filtri dalla memoria del service
+- Aggiornamento dei filtri nel service ad ogni cambio/paginazione
+- Rimosso il salvataggio/caricamento su localStorage per i filtri

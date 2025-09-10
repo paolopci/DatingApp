@@ -1,7 +1,89 @@
-<div class="row">
-    @for(member of members; track member.id) {
-    <div class="col-2">
-        <app-member-card [member]="member" />
+<div class="row g-3 align-items-end mb-3">
+  <div class="col-12 col-md-2">
+    <label class="form-label">Genere</label>
+    <select class="form-select form-select-sm" [(ngModel)]="gender">
+      <option value="">Tutti</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+  </div>
+  <div class="col-6 col-md-2">
+    <label class="form-label">Età minima</label>
+    <input type="number" class="form-control form-control-sm" [(ngModel)]="minAge" min="18" max="120">
+  </div>
+  <div class="col-6 col-md-2">
+    <label class="form-label">Età massima</label>
+    <input type="number" class="form-control form-control-sm" [(ngModel)]="maxAge" min="18" max="120">
+  </div>
+  <div class="col-12 col-md-auto d-flex gap-2 align-items-end flex-nowrap">
+    <button class="btn btn-sm btn-primary" (click)="applyFilters()">Filtra</button>
+    <button class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">Reset</button>
+  </div>
+  <div class="col-12 col-md d-flex align-items-end justify-content-end">
+    <div class="btn-group order-controls ms-3" role="group" aria-label="Order controls">
+      <button type="button" class="btn btn-sm text-nowrap"
+              [class.btn-primary]="orderBy === 'created'"
+              [class.btn-outline-primary]="orderBy !== 'created'"
+              [attr.aria-pressed]="orderBy === 'created'"
+              (click)="onSortClick('created'); refreshTooltip(createdTip)"
+              [ngbTooltip]="tooltipFor('created')" #createdTip="ngbTooltip" triggers="manual"
+              (mouseenter)="createdTip.open()" (mouseleave)="createdTip.close()" placement="bottom">
+        Newest Members
+        @if (orderBy === 'created') {
+          <i class="fa ms-1 text-primary" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
+        }
+      </button>
+      <button type="button" class="btn btn-sm text-nowrap"
+              [class.btn-primary]="orderBy === 'lastActive'"
+              [class.btn-outline-primary]="orderBy !== 'lastActive'"
+              [attr.aria-pressed]="orderBy === 'lastActive'"
+              (click)="onSortClick('lastActive'); refreshTooltip(lastTip)"
+              [ngbTooltip]="tooltipFor('lastActive')" #lastTip="ngbTooltip" triggers="manual"
+              (mouseenter)="lastTip.open()" (mouseleave)="lastTip.close()" placement="bottom">
+        Last Active
+        @if (orderBy === 'lastActive') {
+          <i class="fa ms-1 text-primary" [class.fa-caret-up]="orderDirection === 'asc'" [class.fa-caret-down]="orderDirection === 'desc'"></i>
+        }
+      </button>
     </div>
-    }
+  </div>
 </div>
+
+<div class="row">
+  @for(member of members; track member.id) {
+  <div class="col-2">
+    <app-member-card [member]="member" />
+  </div>
+  }
+</div>
+
+@if (pagination) {
+  <div class="row align-items-center my-3">
+    <div class="col-12 col-md-4 d-none d-md-block"></div>
+    <div class="col-12 col-md-4 d-flex justify-content-center order-1 order-md-2">
+      <ngb-pagination
+        [collectionSize]="pagination.totalItems"
+        [pageSize]="pageSize"
+        [maxSize]="5"
+        [boundaryLinks]="true"
+        [ellipses]="true"
+        [rotate]="true"
+        [page]="pageNumber"
+        (pageChange)="pageChanged($event)">
+      </ngb-pagination>
+    </div>
+    <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center order-2 order-md-3 mt-2 mt-md-0">
+      <div class="d-flex align-items-center gap-2">
+        <label class="me-1 mb-0">Elementi per pagina</label>
+        <select #ps class="form-select form-select-sm" style="width: auto;"
+                [value]="pageSize"
+                (change)="onPageSizeChange(ps.value)">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+    </div>
+  </div>
+}

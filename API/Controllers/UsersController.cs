@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using API.Extensions;
+using API.Helpers;
 
 
 namespace API.Controllers
@@ -27,19 +28,23 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
         {
-            var users = await _userRepository.GetUsersAsync();
-            var usersToReturn = _mapper.Map<IEnumerable<MemberDto>>(users);
+            userParams.CurrentUsername = User.GetUsername();
+            // Recupera i membri già proiettati in MemberDto con paginazione
+            var users = await _userRepository.GetMembersAsync(userParams);
 
-            return Ok(usersToReturn);
+            // Aggiunge header di paginazione alla risposta
+            Response.AddPaginationHeader(users);
+
+            return Ok(users);
         }
 
 
         [HttpGet("{id:int}")] // api/users/5
         public async Task<ActionResult<MemberDto>> GetUserId(int id)
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
+            var user = await _userRepository.GetUserByIdAsync(id); 
 
             if (user == null)
             {
@@ -51,18 +56,18 @@ namespace API.Controllers
 
         }
 
-        [HttpGet("{username}")] // api/users/5
+        [HttpGet("{username}")] // api/users/johndoe
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(username);
+            // Usa la query ottimizzata che restituisce direttamente un MemberDto
+            var user = await _userRepository.GetMemberAsync(username);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            var userToReturn = _mapper.Map<MemberDto>(user);
-            return Ok(userToReturn);
+            return Ok(user);
 
         }
 

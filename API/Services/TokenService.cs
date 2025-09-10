@@ -29,9 +29,12 @@ namespace API.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
 
+            // Emit one identifier claim for the numeric ID and one for the username.
+            // Use JWT registered names to ensure the payload contains "nameid" and "unique_name".
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, user.UserName)
+                new(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                new(JwtRegisteredClaimNames.UniqueName, user.UserName)
             };
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);

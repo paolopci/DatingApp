@@ -1,0 +1,5 @@
+﻿Data e ora creazione: 10-09-2025_11-49
+File modificati:
+/src/app/nav/nav.ts
+- Iniettato MembersService nel Nav
+- Pulizia dei filtri ricordati (sessionStorage) al logout con clearStoredUserParams()
