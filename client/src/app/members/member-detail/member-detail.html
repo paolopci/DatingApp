@@ -19,11 +19,11 @@
             </div>
             <div>
                 <strong>Last Active:</strong>
-                <p>{{ vm()?.lastActive }}</p>
+                <p>{{ vm()?.lastActive | date:'dd MMM yyyy':'':'it-IT' }}</p>
             </div>
             <div>
                 <strong>Member since:</strong>
-                <p>{{ vm()?.created }}</p>
+                <p>{{ vm()?.created | date:'dd MMM yyyy':'':'it-IT' }}</p>
             </div>
         </div>
 

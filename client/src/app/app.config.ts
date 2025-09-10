@@ -1,4 +1,6 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeIt from '@angular/common/locales/it';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './_interceptors/error.interceptor';
@@ -12,6 +14,8 @@ import { jwtInterceptor } from './_interceptors/jwt.interceptor';
  */
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Locale italiano per pipe di data/numero.
+    { provide: LOCALE_ID, useValue: 'it-IT' },
     // Configura i listener di errore globali del browser.
     provideBrowserGlobalErrorListeners(),
     // Fornisce l'HttpClient per le richieste HTTP.
@@ -32,3 +36,6 @@ export const appConfig: ApplicationConfig = {
     ]))
   ]
 };
+
+// Registra i dati di localizzazione per l'italiano
+registerLocaleData(localeIt);

@@ -1,0 +1,4 @@
+﻿Data e ora creazione: 10-09-2025_10-37
+File modificati:
+/src/app/members/member-detail/member-detail.html
+- Modificato il formato della data visualizzata nei campi ""Last Active"" e ""Member since"" a dd MMM yyyy (locale it-IT), senza l'ora
