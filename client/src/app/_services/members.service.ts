@@ -58,6 +58,23 @@ export class MembersService {
 
   private invalidateListCache() { this.listCache.clear(); }
 
+  // ===== Member detail cache (TTL) =====
+  private readonly MEMBER_CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
+  private memberCache = new Map<string, { data: Member; ts: number }>();
+
+  private getFromMemberCache(username: string): Member | undefined {
+    const hit = this.memberCache.get(username);
+    if (!hit) return undefined;
+    const fresh = Date.now() - hit.ts < this.MEMBER_CACHE_TTL_MS;
+    if (!fresh) { this.memberCache.delete(username); return undefined; }
+    return hit.data;
+  }
+
+  private putInMemberCache(member: Member) {
+    if (!member?.username) return;
+    this.memberCache.set(member.username, { data: member, ts: Date.now() });
+  }
+
   
   getMembers(pageNumber?: number, pageSize?: number) {
     // Se è richiesta paginazione, esegue la chiamata con observe:'response' per leggere gli header
@@ -98,16 +115,25 @@ export class MembersService {
   }
 
   getMember(username: string) {
-    const member = this.members().find(x => x.username === username);
-    if (member) return of(member);
+    // 1) tenta da lista già caricata
+    const fromList = this.members().find(x => x.username === username);
+    if (fromList) { this.putInMemberCache(fromList); return of(fromList); }
 
-    return this.http.get<Member>(this.baseUrl + 'users/' + username);
+    // 2) tenta dal cache dettaglio
+    const cached = this.getFromMemberCache(username);
+    if (cached) return of(cached);
+
+    // 3) fallback API e memorizzazione
+    return this.http.get<Member>(this.baseUrl + 'users/' + username).pipe(
+      tap(m => this.putInMemberCache(m))
+    );
   }
 
   updateMember(member: Member) {
     return this.http.put(this.baseUrl + 'users', member).pipe(
       map(() => {
         this.members.update(members => members.map(m => m.username === member.username ? member : m))
+        this.putInMemberCache(member); // write-through per dettaglio
         this.invalidateListCache();
       })
     )
@@ -135,6 +161,14 @@ export class MembersService {
       const updatedPhotos = (m.photos || []).map(p => ({ ...p, isMain: p.id === photoId }));
       return { ...m, photoUrl: photoUrl, photos: updatedPhotos } as Member;
     }));
+
+    // Aggiorna eventuale cache dettaglio
+    const cached = this.getFromMemberCache(username);
+    if (cached) {
+      const updatedPhotos = (cached.photos || []).map(p => ({ ...p, isMain: p.id === photoId }));
+      const updated: Member = { ...cached, photoUrl, photos: updatedPhotos } as Member;
+      this.putInMemberCache(updated);
+    }
   }
 
   // Versione con filtri e paginazione

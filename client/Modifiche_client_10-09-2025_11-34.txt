@@ -1,0 +1,9 @@
+﻿Data e ora creazione: 10-09-2025_11-34
+File modificati:
+/src/app/_services/members.service.ts
+- Intervento A (lista): aggiunta cache LRU+TTL (10 min, 40 chiavi) per liste membri con chiave dai filtri/paginazione
+- Intervento A (lista): lookup cache in getMembers (ramo paginato) e getMembersFiltered; salvataggio risposta in cache
+- Intervento A (lista): invalidazione cache su updateMember, setMainPhoto, deletePhoto
+- Intervento B (dettaglio): aggiunta memberCache con TTL 3 min e funzioni di get/put
+- Intervento B (dettaglio): getMember ora cerca in lista, poi in cache, poi API (con salvataggio)
+- Intervento B (dettaglio): write-through su updateMember e syncMainPhotoLocal (aggiorna memberCache)
