@@ -1,0 +1,6 @@
+﻿Data e ora creazione: 10-09-2025_11-47
+File modificati:
+/src/app/_services/members.service.ts
+- Persistenza filtri su sessionStorage (chiave per username): caricamento all'accesso e salvataggio su set/reset
+- Aggiunto inject di AccountService per ottenere l'utente corrente e costruire la chiave di storage
+- Aggiornati metodi get/set/reset per leggere/scrivere sessionStorage

@@ -6,6 +6,7 @@ import { map, of, tap } from 'rxjs';
 import { PaginatedResult } from '../_models/paginatedResult';
 import { UserParams } from '../_models/userParams';
 import { Paginator } from '../_models/pagination';
+import { AccountService } from './account';
 
 
 @Injectable({
@@ -13,9 +14,66 @@ import { Paginator } from '../_models/pagination';
 })
 export class MembersService {
   private http = inject(HttpClient);
+  private accountService = inject(AccountService);
   baseUrl = environment.apiUrl;
   members = signal<Member[]>([]);
   paginatedResult = signal<PaginatedResult<Member[]> | null>(null);
+
+  // Remembered filters (in-memory)
+  private defaultUserParams(): UserParams {
+    return {
+      pageNumber: 1,
+      pageSize: 5,
+      gender: undefined,
+      minAge: 18,
+      maxAge: 100,
+      orderBy: 'lastActive',
+      orderDirection: 'desc'
+    };
+  }
+  private currentParamsSig = signal<UserParams>(this.defaultUserParams());
+  private hydrated = false;
+
+  private storageKey() {
+    const u = this.accountService.currentUser();
+    const username = u?.username || 'anon';
+    return `memberListUserParams:${username}`;
+  }
+
+  private hydrateUserParamsFromStorage() {
+    if (this.hydrated) return;
+    this.hydrated = true;
+    try {
+      const raw = sessionStorage.getItem(this.storageKey());
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        this.currentParamsSig.set({ ...this.defaultUserParams(), ...parsed });
+      }
+    } catch {}
+  }
+
+  getUserParams(): UserParams {
+    this.hydrateUserParamsFromStorage();
+    return this.currentParamsSig();
+  }
+
+  setUserParams(update: Partial<UserParams>) {
+    const prev = this.currentParamsSig();
+    const next = { ...prev, ...update } as UserParams;
+    this.currentParamsSig.set(next);
+    try { sessionStorage.setItem(this.storageKey(), JSON.stringify(next)); } catch {}
+  }
+
+  resetUserParams() {
+    const next = this.defaultUserParams();
+    this.currentParamsSig.set(next);
+    try { sessionStorage.setItem(this.storageKey(), JSON.stringify(next)); } catch {}
+  }
+
+  clearStoredUserParams() {
+    try { sessionStorage.removeItem(this.storageKey()); } catch {}
+  }
 
   // List cache (LRU + TTL)
   private readonly LIST_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes

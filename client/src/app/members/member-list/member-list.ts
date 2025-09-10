@@ -32,10 +32,16 @@ export class MemberList implements OnInit {
   orderDirection: 'asc' | 'desc' = 'desc';
   orderDirByField: Record<'created' | 'lastActive', 'asc' | 'desc'> = { created: 'desc', lastActive: 'desc' };
 
-  private readonly filterStorageKey = 'memberListFilters';
-
   ngOnInit(): void {
-    this.loadFilters();
+    // Initialize from service remembered params
+    const r = this.memberService.getUserParams();
+    this.pageNumber = r.pageNumber;
+    this.pageSize = r.pageSize;
+    this.gender = r.gender ?? '';
+    this.minAge = typeof r.minAge === 'number' ? r.minAge : 18;
+    this.maxAge = typeof r.maxAge === 'number' ? r.maxAge : 100;
+    this.orderBy = r.orderBy ?? 'lastActive';
+    this.orderDirection = r.orderDirection ?? 'desc';
     const current: User | null = this.accountService.currentUser();
     if (!this.gender && current?.gender) {
       const g = current.gender.toLowerCase();
@@ -45,7 +51,16 @@ export class MemberList implements OnInit {
   }
 
   loadMembers() {
-    this.saveFilters();
+    // Persist params in service so they are remembered across navigations
+    this.memberService.setUserParams({
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      gender: this.gender || undefined,
+      minAge: this.minAge,
+      maxAge: this.maxAge,
+      orderBy: this.orderBy,
+      orderDirection: this.orderDirection
+    });
     this.memberService.getMembersFiltered({
       pageNumber: this.pageNumber,
       pageSize: this.pageSize,
@@ -88,12 +103,17 @@ export class MemberList implements OnInit {
 
   resetFilters() {
     const current: User | null = this.accountService.currentUser();
-    this.gender = current?.gender ? (current.gender.toLowerCase() === 'male' ? 'female' : current.gender.toLowerCase() === 'female' ? 'male' : '') : '';
-    this.minAge = 18;
-    this.maxAge = 100;
-    this.orderBy = 'lastActive';
-    this.orderDirection = 'desc';
-    this.pageNumber = 1;
+    this.memberService.resetUserParams();
+    const r = this.memberService.getUserParams();
+    // Apply defaults from service
+    this.pageNumber = r.pageNumber;
+    this.pageSize = r.pageSize;
+    // keep the opposite-gender default if available
+    this.gender = current?.gender ? (current.gender.toLowerCase() === 'male' ? 'female' : current.gender.toLowerCase() === 'female' ? 'male' : '') : (r.gender ?? '');
+    this.minAge = typeof r.minAge === 'number' ? r.minAge : 18;
+    this.maxAge = typeof r.maxAge === 'number' ? r.maxAge : 100;
+    this.orderBy = r.orderBy ?? 'lastActive';
+    this.orderDirection = r.orderDirection ?? 'desc';
     this.loadMembers();
   }
 
@@ -122,37 +142,6 @@ export class MemberList implements OnInit {
     } catch { }
   }
 
-  private saveFilters() {
-    const data = {
-      pageNumber: this.pageNumber,
-      pageSize: this.pageSize,
-      gender: this.gender,
-      minAge: this.minAge,
-      maxAge: this.maxAge,
-      orderBy: this.orderBy,
-      orderDirection: this.orderDirection,
-      orderDirByField: this.orderDirByField
-    };
-    try { localStorage.setItem(this.filterStorageKey, JSON.stringify(data)); } catch {}
-  }
-
-  private loadFilters() {
-    try {
-      const raw = localStorage.getItem(this.filterStorageKey);
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (typeof data.pageNumber === 'number') this.pageNumber = data.pageNumber;
-      if (typeof data.pageSize === 'number') this.pageSize = data.pageSize;
-      if (typeof data.gender === 'string') this.gender = data.gender;
-      if (typeof data.minAge === 'number') this.minAge = data.minAge;
-      if (typeof data.maxAge === 'number') this.maxAge = data.maxAge;
-      if (data.orderBy === 'created' || data.orderBy === 'lastActive') this.orderBy = data.orderBy;
-      if (data.orderDirection === 'asc' || data.orderDirection === 'desc') this.orderDirection = data.orderDirection;
-      if (data.orderDirByField && (data.orderDirByField.created === 'asc' || data.orderDirByField.created === 'desc')
-        && (data.orderDirByField.lastActive === 'asc' || data.orderDirByField.lastActive === 'desc')) {
-        this.orderDirByField = data.orderDirByField;
-      }
-    } catch {}
-  }
+  // Removed localStorage-based remember; the service now keeps params in memory
 }
 

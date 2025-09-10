@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../_services/account'; // Assuming Account service is in the same directory
+import { MembersService } from '../_services/members.service';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Toast } from '../_services/toast';
@@ -18,6 +19,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class Nav {
   accountService = inject(AccountService)
+  private membersService = inject(MembersService);
   private toastsService = inject(Toast);
   private router = inject(Router);
   model: any = {};
@@ -51,6 +53,8 @@ export class Nav {
   }
 
   logout() {
+    // Pulisce i filtri ricordati per l'utente corrente
+    this.membersService.clearStoredUserParams();
     this.accountService.logout();
     this.router.navigateByUrl('/'); // Navigate to home page after logout
   }
