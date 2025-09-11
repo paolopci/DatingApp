@@ -8,7 +8,7 @@ namespace API.Entities
     {
         public int Id { get; set; }
 
-        [Required] public string UserName { get; set; }
+        [Required] public string UserName { get; set; } = string.Empty;
         // [Required
         public byte[] PasswordHash { get; set; } = [];
         //  [Required]
@@ -16,20 +16,20 @@ namespace API.Entities
 
         public DateOnly DateOfBirth { get; set; }
         [Required]
-        public string KnownAs { get; set; }
+        public string KnownAs { get; set; } = string.Empty;
 
         public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime LastActive { get; set; } = DateTime.UtcNow;
         [Required]
-        public string Gender { get; set; }
+        public string Gender { get; set; } = string.Empty;
 
         public string? Introduction { get; set; }
         public string? Interests { get; set; }
         public string? LookingFor { get; set; }
         [Required]
-        public string City { get; set; }
+        public string City { get; set; } = string.Empty;
         [Required]
-        public string Country { get; set; }
+        public string Country { get; set; } = string.Empty;
         public int Age
         {
             get
@@ -43,6 +43,8 @@ namespace API.Entities
         // Navigation property
         public List<Photo> Photos { get; set; } = [];
 
+        public List<UserLike> LikedByUsers { get; set; } = [];
+        public List<UserLike> LikedUsers { get; set; } = [];
 
     }
 }

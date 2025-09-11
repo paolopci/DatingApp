@@ -1,1 +1,50 @@
-<p>lists works!</p>
+<div class="text-center mt-3">
+    <h2>{{ getTitle() }}</h2>
+</div>
+<div class="container mt-3">
+    <div class="d-flex">
+        <div class="btn-group" role="group" aria-label="Likes filters">
+            <input type="radio" class="btn-check" name="likesFilter" id="filter-liked" autocomplete="off"
+                   [checked]="predicate === 'liked'" (change)="setPredicate('liked')">
+            <label class="btn btn-primary" for="filter-liked">Members I like</label>
+
+            <input type="radio" class="btn-check" name="likesFilter" id="filter-likedBy" autocomplete="off"
+                   [checked]="predicate === 'likedBy'" (change)="setPredicate('likedBy')">
+            <label class="btn btn-primary" for="filter-likedBy">Members who like me</label>
+
+            <input type="radio" class="btn-check" name="likesFilter" id="filter-mutual" autocomplete="off"
+                   [checked]="predicate === 'mutual'" (change)="setPredicate('mutual')">
+            <label class="btn btn-primary" for="filter-mutual">Mutual</label>
+        </div>
+    </div>
+    <div class="row mt-3">
+        @for(member of members;track member.id){
+        <div class="col-2">
+            <app-member-card [member]="member"></app-member-card>
+        </div>
+        }
+    </div>
+    @if (pagination) {
+    <div class="row align-items-center my-3">
+        <div class="col-12 col-md-4 d-none d-md-block"></div>
+        <div class="col-12 col-md-4 d-flex justify-content-center order-1 order-md-2">
+            <ngb-pagination [collectionSize]="pagination.totalItems" [pageSize]="pageSize" [maxSize]="5"
+                [boundaryLinks]="true" [ellipses]="true" [rotate]="true" [page]="pageNumber"
+                (pageChange)="pageChanged($event)">
+            </ngb-pagination>
+        </div>
+        <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center order-2 order-md-3 mt-2 mt-md-0">
+            <div class="d-flex align-items-center gap-2">
+                <label class="me-1 mb-0">Elementi per pagina</label>
+                <select #ps class="form-select form-select-sm" style="width: auto;" [value]="pageSize"
+                    (change)="onPageSizeChange(ps.value)">
+                    <option [value]="5">5</option>
+                    <option [value]="10">10</option>
+                    <option [value]="20">20</option>
+                    <option [value]="50">50</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    }
+</div>
