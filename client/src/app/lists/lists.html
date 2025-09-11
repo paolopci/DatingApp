@@ -3,17 +3,18 @@
 </div>
 <div class="container mt-3">
     <div class="d-flex">
-        <div class="btn-group" ngbRadioGroup [(ngModel)]="predicate" (ngModelChange)="loadLikes()"
-            aria-label="Likes filters">
-            <label ngbButtonLabel class="btn btn-primary">
-                <input ngbButton type="radio" value="liked"> Members I like
-            </label>
-            <label ngbButtonLabel class="btn btn-primary">
-                <input ngbButton type="radio" value="likedBy"> Members who like me
-            </label>
-            <label ngbButtonLabel class="btn btn-primary">
-                <input ngbButton type="radio" value="mutual"> Mutual
-            </label>
+        <div class="btn-group" role="group" aria-label="Likes filters">
+            <input type="radio" class="btn-check" name="likesFilter" id="filter-liked" autocomplete="off"
+                   [checked]="predicate === 'liked'" (change)="setPredicate('liked')">
+            <label class="btn btn-primary" for="filter-liked">Members I like</label>
+
+            <input type="radio" class="btn-check" name="likesFilter" id="filter-likedBy" autocomplete="off"
+                   [checked]="predicate === 'likedBy'" (change)="setPredicate('likedBy')">
+            <label class="btn btn-primary" for="filter-likedBy">Members who like me</label>
+
+            <input type="radio" class="btn-check" name="likesFilter" id="filter-mutual" autocomplete="off"
+                   [checked]="predicate === 'mutual'" (change)="setPredicate('mutual')">
+            <label class="btn btn-primary" for="filter-mutual">Mutual</label>
         </div>
     </div>
     <div class="row mt-3">

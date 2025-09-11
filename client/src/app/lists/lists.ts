@@ -3,11 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { LikesService } from '../_services/likes.service';
 import { Member } from '../_models/member';
 import { MemberCardComponent } from "../members/member-card/member-card.component";
-import { NgbButtonsModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-lists',
-  imports: [MemberCardComponent, FormsModule, NgbButtonsModule],
+  standalone: true,
+  imports: [MemberCardComponent, FormsModule],
   templateUrl: './lists.html',
   styleUrl: './lists.css'
 })
@@ -33,6 +33,12 @@ export class Lists implements OnInit {
       case 'likedBy': return 'Members who like you';
       default: return 'Mutual';
     }
+  }
+
+  setPredicate(value: 'liked' | 'likedBy' | 'mutual') {
+    if (this.predicate === value) return;
+    this.predicate = value;
+    this.loadLikes();
   }
 
 }
