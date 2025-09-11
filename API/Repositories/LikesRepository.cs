@@ -28,27 +28,37 @@ namespace API.Repositories
         public async Task<IEnumerable<MemberDto>> GetUserLikes(string predicate, int userId)
         {
             var likes = _context.Likes.AsQueryable();
-            var users = _context.Users.AsQueryable();
 
-            if (predicate == "liked")
+            switch (predicate)
             {
-                users = likes.Where(l => l.SourceUserId == userId)
-                             .Select(l => l.TargetUser);
-            }
-            else if (predicate == "likedBy")
-            {
-                users = likes.Where(l => l.TargetUserId == userId)
-                             .Select(l => l.SourceUser);
-            }
-            else
-            {
-                return new List<MemberDto>();
-            }
+                case "liked":
+                    return await likes
+                        .Where(x => x.SourceUserId == userId)
+                        .Select(x => x.TargetUser)
+                        .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                        .AsNoTracking()
+                        .ToListAsync();
 
-            return await users
-                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
-                .AsNoTracking()
-                .ToListAsync();
+                case "likedBy":
+                    return await likes
+                        .Where(x => x.TargetUserId == userId)
+                        .Select(x => x.SourceUser)
+                        .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                case "matches":
+                    var likeIds = await GetCurrentUserLikeIds(userId);
+                    return await likes
+                        .Where(x => x.TargetUserId == userId && likeIds.Contains(x.SourceUserId))
+                        .Select(x => x.SourceUser)
+                        .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                default:
+                    return new List<MemberDto>();
+            }
         }
 
         public async Task<IEnumerable<int>> GetCurrentUserLikeIds(int currentUserId)
