@@ -1,1 +1,26 @@
-<p>lists works!</p>
+<div class="text-center mt-3">
+    <h2>{{ getTitle() }}</h2>
+</div>
+<div class="container mt-3">
+    <div class="d-flex">
+        <div class="btn-group" ngbRadioGroup [(ngModel)]="predicate" (ngModelChange)="loadLikes()"
+            aria-label="Likes filters">
+            <label ngbButtonLabel class="btn btn-primary">
+                <input ngbButton type="radio" value="liked"> Members I like
+            </label>
+            <label ngbButtonLabel class="btn btn-primary">
+                <input ngbButton type="radio" value="likedBy"> Members who like me
+            </label>
+            <label ngbButtonLabel class="btn btn-primary">
+                <input ngbButton type="radio" value="mutual"> Mutual
+            </label>
+        </div>
+    </div>
+    <div class="row mt-3">
+        @for(member of members;track member.id){
+        <div class="col-2">
+            <app-member-card [member]="member"></app-member-card>
+        </div>
+        }
+    </div>
+</div>
