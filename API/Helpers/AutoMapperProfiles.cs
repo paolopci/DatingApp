@@ -25,6 +25,17 @@ namespace API.Helpers
                         ? src.Photos.FirstOrDefault(x => x.IsMain)!.Url 
                         : null))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UserName));
+
+            // Message -> MessageDto
+            CreateMap<Message, MessageDto>()
+                .ForMember(d => d.SenderPhotoUrl,
+                    o => o.MapFrom(s => s.Sender.Photos.FirstOrDefault(x => x.IsMain) != null
+                        ? s.Sender.Photos.FirstOrDefault(x => x.IsMain)!.Url
+                        : null))
+                .ForMember(d => d.RecipientPhotoUrl,
+                    o => o.MapFrom(s => s.Recipient.Photos.FirstOrDefault(x => x.IsMain) != null
+                        ? s.Recipient.Photos.FirstOrDefault(x => x.IsMain)!.Url
+                        : null));
         }
     }
 }
