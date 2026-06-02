@@ -1,4 +1,4 @@
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, isDevMode, LOCALE_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
 import { provideRouter } from '@angular/router';
@@ -8,6 +8,9 @@ import { loadingInterceptor } from './_interceptors/loading-interceptor';
 
 import { routes } from './app.routes';
 import { jwtInterceptor } from './_interceptors/jwt.interceptor';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
 
 /**
  * Configuration object for the Angular application.
@@ -20,21 +23,27 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     // Fornisce l'HttpClient per le richieste HTTP.
     provideHttpClient(),
-
     // Configura il rilevamento delle modifiche di Angular.
     provideZoneChangeDetection({ eventCoalescing: true }),
     // Configura il router dell'applicazione con le rotte definite.
     provideRouter(routes),
-
     // Registra gli interceptor HTTP. L'ordine è FONDAMENTALE.
     // Le richieste vengono processate nell'ordine: jwt -> loading -> error.
     // Le risposte vengono processate in ordine inverso: error -> loading -> jwt.
     provideHttpClient(withInterceptors([
-      jwtInterceptor,       // 1. Aggiunge il token JWT di autenticazione a quasi tutte le richieste in uscita.
-      loadingInterceptor,   // 2. Mostra uno spinner di caricamento prima dell'invio di una richiesta e lo nasconde alla ricezione della risposta.
-      errorInterceptor      // 3. Gestisce centralmente gli errori HTTP (es. 400, 401, 404, 500).
-    ]))
-  ]
+        jwtInterceptor, // 1. Aggiunge il token JWT di autenticazione a quasi tutte le richieste in uscita.
+        loadingInterceptor, // 2. Mostra uno spinner di caricamento prima dell'invio di una richiesta e lo nasconde alla ricezione della risposta.
+        errorInterceptor // 3. Gestisce centralmente gli errori HTTP (es. 400, 401, 404, 500).
+    ])),
+    provideStore(),
+    provideEffects([]),
+    provideStoreDevtools({
+        maxAge: 25,
+        logOnly: !isDevMode(),
+        autoPause: true,
+        connectInZone: true
+    })
+]
 };
 
 // Registra i dati di localizzazione per l'italiano

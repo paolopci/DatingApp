@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Register } from "../register/register";
+import { Register } from '../register/register';
 import { Toasts } from '../toasts/toasts';
 
 @Component({
@@ -7,20 +7,18 @@ import { Toasts } from '../toasts/toasts';
   imports: [Register, Toasts],
   standalone: true,
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrl: './home.css',
 })
 export class Home {
-
   registerMode = false;
-
-
-
-
+  // ! test!!!!
+  // * test
+  // ? prrorororrororo
+  // todo da fare
+  // @param param1
   registerToggle() {
     this.registerMode = !this.registerMode;
   }
-
-
 
   cancelRegisterMode(event: boolean) {
     this.registerMode = event;

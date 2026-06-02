@@ -5,4 +5,3 @@ export interface LikesParams {
   pageNumber: number;
   pageSize: number;
 }
-
