@@ -50,9 +50,13 @@ export const appConfig: ApplicationConfig = {
     provideState(membersFeature),
     provideEffects([AuthEffects, RegisterEffects, LikesEffects, MembersEffects]),
     provideStoreDevtools({
+        // Mantiene nello storico DevTools gli ultimi 25 stati dello store.
         maxAge: 25,
+        // In produzione abilita solo la lettura/log, evitando modifiche allo stato dai DevTools.
         logOnly: !isDevMode(),
+        // Sospende la registrazione quando la finestra Redux DevTools non è aperta.
         autoPause: true,
+        // Esegue la connessione ai DevTools dentro la zona Angular.
         connectInZone: true
     })
 ]
