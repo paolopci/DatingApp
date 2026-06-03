@@ -1,4 +1,10 @@
-import { ApplicationConfig, isDevMode, LOCALE_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  isDevMode,
+  LOCALE_ID,
+  provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
 import { provideRouter } from '@angular/router';
@@ -38,28 +44,39 @@ export const appConfig: ApplicationConfig = {
     // Registra gli interceptor HTTP. L'ordine è FONDAMENTALE.
     // Le richieste vengono processate nell'ordine: jwt -> loading -> error.
     // Le risposte vengono processate in ordine inverso: error -> loading -> jwt.
-    provideHttpClient(withInterceptors([
+    provideHttpClient(
+      withInterceptors([
         jwtInterceptor, // 1. Aggiunge il token JWT di autenticazione a quasi tutte le richieste in uscita.
         loadingInterceptor, // 2. Mostra uno spinner di caricamento prima dell'invio di una richiesta e lo nasconde alla ricezione della risposta.
-        errorInterceptor // 3. Gestisce centralmente gli errori HTTP (es. 400, 401, 404, 500).
-    ])),
+        errorInterceptor, // 3. Gestisce centralmente gli errori HTTP (es. 400, 401, 404, 500).
+      ]),
+    ),
     provideStore(),
     provideState(authFeature),
     provideState(registerFeature),
     provideState(likesFeature),
     provideState(membersFeature),
-    provideEffects([AuthEffects, RegisterEffects, LikesEffects, MembersEffects]),
+    provideEffects([
+      AuthEffects,
+      RegisterEffects,
+      LikesEffects,
+      MembersEffects,
+    ]),
     provideStoreDevtools({
-        // Mantiene nello storico DevTools gli ultimi 25 stati dello store.
-        maxAge: 25,
-        // In produzione abilita solo la lettura/log, evitando modifiche allo stato dai DevTools.
-        logOnly: !isDevMode(),
-        // Sospende la registrazione quando la finestra Redux DevTools non è aperta.
-        autoPause: true,
-        // Esegue la connessione ai DevTools dentro la zona Angular.
-        connectInZone: true
-    })
-]
+      // Mantiene nello storico DevTools gli ultimi 25 stati dello store.
+      maxAge: 25,
+      // In produzione abilita solo la lettura/log, evitando modifiche allo stato dai DevTools.
+      logOnly: !isDevMode(),
+      // Sospende la registrazione quando la finestra Redux DevTools non è aperta.
+      autoPause: true,
+      // Esegue la connessione ai DevTools dentro la zona Angular.
+      connectInZone: true,
+      // Disabilita la raccolta dello stack trace per ogni action, riducendo overhead e rumore.
+      trace: false,
+      // Numero massimo di frame dello stack trace da conservare se trace viene abilitato.
+      traceLimit: 75,
+    }),
+  ],
 };
 
 // Registra i dati di localizzazione per l'italiano
