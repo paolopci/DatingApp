@@ -73,7 +73,8 @@
         <div class="invalid-feedback text-start">Le password non coincidono</div>
         }
     </app-text-input>
-    @if(validationErrors){<!-- Se ci sono degli errori li visualizzo -->
+    @if(validationErrors$ | async; as validationErrors){<!-- Errori esposti dallo store NgRx -->
+    @if(validationErrors.length){
     <div class="alert alert-danger text-start">
         <ul>
             @for(error of validationErrors;track $index){
@@ -82,15 +83,15 @@
         </ul>
     </div>
     }
+    }
 
     <!-- Bottoni: submit disabilitato se form invalido o data in formato errato -->
     <div class="form-group text-center">
-        <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || dobFormatInvalid"
-            [class.opacity-50]="registerForm.invalid || dobFormatInvalid">Register</button>
+        <button type="submit" class="btn btn-primary"
+            [disabled]="registerForm.invalid || dobFormatInvalid || ((loading$ | async) ?? false)"
+            [class.opacity-50]="registerForm.invalid || dobFormatInvalid || ((loading$ | async) ?? false)">
+            @if(loading$ | async){ Registering... } @else { Register }
+        </button>
         <button type="button" class="btn btn-default" (click)="cancel()">Cancel</button>
     </div>
 </form>
-
-<!-- Debug (sviluppo): utile per ispezionare lo stato del form -->
-<p>Form value: {{ registerForm.value | json }}</p>
-<p>Form status: {{ registerForm.status | json }}</p>

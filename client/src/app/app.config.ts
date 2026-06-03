@@ -8,9 +8,17 @@ import { loadingInterceptor } from './_interceptors/loading-interceptor';
 
 import { routes } from './app.routes';
 import { jwtInterceptor } from './_interceptors/jwt.interceptor';
-import { provideStore } from '@ngrx/store';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { registerFeature } from './register/state/register.reducer';
+import { RegisterEffects } from './register/state/register.effects';
+import { authFeature } from './auth/state/auth.reducer';
+import { AuthEffects } from './auth/state/auth.effects';
+import { likesFeature } from './likes/state/likes.reducer';
+import { LikesEffects } from './likes/state/likes.effects';
+import { membersFeature } from './members/state/members.reducer';
+import { MembersEffects } from './members/state/members.effects';
 
 /**
  * Configuration object for the Angular application.
@@ -36,7 +44,11 @@ export const appConfig: ApplicationConfig = {
         errorInterceptor // 3. Gestisce centralmente gli errori HTTP (es. 400, 401, 404, 500).
     ])),
     provideStore(),
-    provideEffects([]),
+    provideState(authFeature),
+    provideState(registerFeature),
+    provideState(likesFeature),
+    provideState(membersFeature),
+    provideEffects([AuthEffects, RegisterEffects, LikesEffects, MembersEffects]),
     provideStoreDevtools({
         maxAge: 25,
         logOnly: !isDevMode(),

@@ -5,10 +5,9 @@ import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { NgxDropzoneChangeEvent, NgxDropzoneModule } from 'ngx-dropzone';
 import { environment } from '../../../environments/environment.development';
 import { DecimalPipe, CommonModule, NgFor } from '@angular/common';
-import { MembersService } from '../../_services/members.service';
-import { AccountService } from '../../_services/account';
 import { Toast } from '../../_services/toast';
-import { finalize } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { membersActions } from '../state/members.actions';
 
 
 
@@ -21,8 +20,7 @@ import { finalize } from 'rxjs';
 })
 export class PhotoEditorComponent {
   member = input.required<Member>();
-  private memberService = inject(MembersService);
-  private accountService = inject(AccountService);
+  private store = inject(Store);
   private readonly toastr = inject(Toast);
 
 
@@ -108,6 +106,10 @@ export class PhotoEditorComponent {
             if (!current) return;
 
             (current as any).photos = [...(current.photos ?? []), added];
+            this.store.dispatch(membersActions.photoAdded({
+              username: current.username,
+              photo: added
+            }));
           }
         },
         error: (err) => {
@@ -128,40 +130,14 @@ export class PhotoEditorComponent {
     this._isSettingMain.set(true);
 
 
-    this.memberService.setMainPhoto(photo.id).subscribe({
-      next: () => {
-        // 1 aggiorna le foto del member (clear main precedente, set nuova main)
-        const m = this.member();// InputSignal<Member> nel tuo template usi member().photos 
-        if (!m) return;
-        for (const p of m.photos) {
-          if (p.isMain) p.isMain = false;
-        }
-        const target = m.photos.find(p => p.id === photo.id);
-        if (target) target.isMain = true;
-        // Aggiorna anche l'avatar del profilo mostrato nelle viste che leggono photoUrl
-        // (es. Your profile nella Member Edit)
-        (m as any).photoUrl = photo.url;
-
-        // Allinea anche la cache della lista membri (card ecc.)
-        this.memberService.syncMainPhotoLocal(m.username, photo.id!, photo.url);
-        // 2) Aggiorna la navbar (currentUser.photoUrl) senza richiedere un nuovo login
-        this.accountService.currentUser.update(u => {
-          if (!u) return u;
-          return {
-            ...u,
-            photoUrl: photo.url
-          }
-        });
-        // (opzionale) toast/success log
-        this.toastr.show('Main photo aggiornata');
-      },
-      error: (err) => {
-        console.error('Errore nel setMainPhoto', err);
-        this.toastr.show('Impossibile impostare la main photo');
-      }, complete: () => {
-        this._isSettingMain.set(false);
-      }
-    });
+    const m = this.member();
+    this.store.dispatch(membersActions.setMainPhotoRequested({
+      username: m.username,
+      photoId: photo.id,
+      photoUrl: photo.url
+    }));
+    this.toastr.show('Main photo aggiornata');
+    this._isSettingMain.set(false);
   }
 
   deletePhoto(photo: Photo) {
@@ -177,22 +153,12 @@ export class PhotoEditorComponent {
     // Segna la foto come "in cancellazione" per evitare doppi click
     this._deleting.update(s => new Set([...s, photo.id!]));
 
-    this.memberService.deletePhoto(photo.id).pipe(
-      // Al termine (successo/errore) rimuove lo stato di busy per questo ID
-      finalize(() => this._deleting.update(s => { const n = new Set(s); n.delete(photo.id!); return n; }))
-    ).subscribe({
-      next: () => {
-        // Aggiorna lo stato locale rimuovendo la foto dalla galleria
-        const current = this.member();
-        if (!current) return;
-        (current as any).photos = current.photos.filter(p => p.id !== photo.id);
-
-        this.toastr.show('Foto eliminata', 'success');
-      },
-      error: (err) => {
-        console.error('Errore eliminazione foto', err);
-        this.toastr.show('Impossibile eliminare la foto', 'error');
-      }
-    });
+    const current = this.member();
+    this.store.dispatch(membersActions.deletePhotoRequested({
+      username: current.username,
+      photoId: photo.id
+    }));
+    this.toastr.show('Foto eliminata', 'success');
+    this._deleting.update(s => { const n = new Set(s); n.delete(photo.id!); return n; });
   }
 }

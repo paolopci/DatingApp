@@ -3,7 +3,7 @@
         <a class="navbar-brand" routerLink="/" routerLinkActive="active">Dating App</a>
 
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
-            @if(accountService.currentUser()) {
+            @if(currentUser$ | async; as currentUser) {
             <!-- questi sono links che voglio vedere solo se sono loggato-->
             <li class="nav-item">
                 <a routerLink="/members" routerLinkActive="active" class="nav-link">Matches</a>
@@ -21,13 +21,13 @@
             </li>
         </ul>
 
-        @if(accountService.currentUser()) {
+        @if(currentUser$ | async; as currentUser) {
         <!-- Dropdown ng-bootstrap (no JS di Bootstrap richiesto) -->
         <div ngbDropdown class="dropdown">
-            <img class="me-2" src="{{accountService.currentUser()?.photoUrl || 'assets/user.png'}}" alt="">
+            <img class="me-2" src="{{currentUser.photoUrl || 'assets/user.png'}}" alt="">
             <a ngbDropdownToggle class="dropdown-toggle text-light text-decoration-none" role="button"
                 aria-expanded="false">
-                Welcome {{ accountService.currentUser()?.username | titlecase}}
+                Welcome {{ currentUser.username | titlecase}}
             </a>
             <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
                 <a routerLink="/member/edit" class="dropdown-item" ngbDropdownItem>Edit Profile</a>
@@ -35,12 +35,12 @@
                 <button class="dropdown-item" type="button" (click)="logout()" ngbDropdownItem>Logout</button>
             </div>
         </div>
-        } @if(!accountService.currentUser()) {
+        } @else {
         <form #loginForm="ngForm" class="d-flex" (ngSubmit)="login()" autocomplete="off">
             <input name="username" [(ngModel)]="model.username" class="form-control me-2" placeholder="Username" />
             <input name="password" [(ngModel)]="model.password" class="form-control me-2" placeholder="Password"
                 type="password" />
-            <button class="btn btn-success" type="submit">Login</button>
+            <button class="btn btn-success" type="submit" [disabled]="(loading$ | async) ?? false">Login</button>
         </form>
         }
     </div>

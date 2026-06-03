@@ -1,27 +1,26 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { NgbDatepickerModule, NgbDateStruct, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
-import { DdmmyyyyNgbDateParserFormatter, DDMYYYY_REGEX } from './ddmmyyyy-ngb-date-parser-formatter';
-import { AccountService } from '../_services/account';
-import { JsonPipe, CommonModule } from '@angular/common';
-import { TextInputComponent } from "../_forms/text-input/text-input.component";
-import { Toast } from '../_services/toast';
-import { Router } from '@angular/router';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { NgbDatepickerModule, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { TextInputComponent } from '../_forms/text-input/text-input.component';
+import { DDMYYYY_REGEX, DdmmyyyyNgbDateParserFormatter } from './ddmmyyyy-ngb-date-parser-formatter';
+import { registerActions } from './state/register.actions';
+import { RegisterFormValue, RegisterRequest } from './state/register.models';
+import { registerFeature } from './state/register.reducer';
 
 /*
   Componente Register (standalone)
-  - Usa Reactive Forms per gestire lo stato e la validazione.
+  - Usa Reactive Forms per gestire stato e validazione locale del form.
+  - Usa NgRx per l'intento di registrazione: il componente dispatcha l'azione,
+    mentre effect e reducer gestiscono HTTP, navigazione, loading ed errori.
   - Integra ng-bootstrap Datepicker con un parser/formatter personalizzato
     che accetta e mostra SOLO il formato dd/MM/yyyy con zeri iniziali.
-  - Mostra un messaggio di errore se il formato digitato non è valido
-    e impedisce l'invio del form finché la data non rispetta il formato.
 */
-
-
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, JsonPipe, CommonModule, TextInputComponent, NgbDatepickerModule],
+  imports: [ReactiveFormsModule, CommonModule, TextInputComponent, NgbDatepickerModule],
   standalone: true,
   templateUrl: './register.html',
   styleUrl: './register.css',
@@ -32,15 +31,15 @@ import { Router } from '@angular/router';
   ]
 })
 export class Register implements OnInit {
-
-  private accountService = inject(AccountService);
   private fb = inject(FormBuilder);
-  private readonly toastr = inject(Toast);
-  private router = inject(Router);
-  model: any = {};
+  private readonly store = inject(Store);
+
+  // Selector NgRx esposti al template: il componente legge stato, ma non gestisce side effect.
+  loading$ = this.store.select(registerFeature.selectLoading);
+  validationErrors$ = this.store.select(registerFeature.selectValidationErrors);
+
   registerForm: FormGroup = new FormGroup({});
   cancelRegister = output<boolean>();
-  validationErrors: string[] | undefined;
 
   // Limiti del datepicker (data minima e massima ammessa)
   minDob: NgbDateStruct = { year: 1900, month: 1, day: 1 };
@@ -50,9 +49,8 @@ export class Register implements OnInit {
   })();
 
   // Traccia il testo digitato per validarlo con regex dd/MM/yyyy
-  private rawDob: string = '';
+  private rawDob = '';
   dobFormatInvalid = false;
-
 
   ngOnInit(): void {
     this.initializeForm();
@@ -62,14 +60,15 @@ export class Register implements OnInit {
   initializeForm() {
     this.registerForm = this.fb.group({
       gender: ['male'],
-      username: ["", Validators.required],
-      knownAs: ["", Validators.required],
+      username: ['', Validators.required],
+      knownAs: ['', Validators.required],
       dateOfBirth: [null, Validators.required],
-      city: ["", Validators.required],
-      country: ["", Validators.required],
+      city: ['', Validators.required],
+      country: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]],
       confirmPassword: ['', [Validators.required, this.matchValues('password')]]
     });
+
     // Se cambia la password, rivalida il campo di conferma
     this.registerForm.get('password')!.valueChanges.subscribe(() => {
       this.registerForm.get('confirmPassword')!.updateValueAndValidity({ onlySelf: true });
@@ -84,34 +83,25 @@ export class Register implements OnInit {
     });
   }
 
-
   matchValues(matchTo: string): ValidatorFn {
     return (control: AbstractControl) => {
       return control.value === control.parent?.get(matchTo)?.value ? null : { notMatching: true };
-    }
+    };
   }
 
-  // Submit del form: blocca l'invio se form invalido o data non conforme
+  // Submit del form: valida localmente e poi delega il side effect HTTP a NgRx Effects.
   register() {
     if (this.registerForm.invalid || this.dobFormatInvalid) {
       this.registerForm.markAllAsTouched();
+      return;
     }
 
-    console.log(this.registerForm.value);
-
-    this.accountService.register(this.model).subscribe({
-      next: _ => {
-        this.router.navigateByUrl('/members')
-
-      },
-      error: error => {
-        this.validationErrors = error;
-      }
-    });
-
+    const request = mapRegisterFormToRequest(this.registerForm.getRawValue() as RegisterFormValue);
+    this.store.dispatch(registerActions.registerSubmitted({ request }));
   }
 
   cancel() {
+    this.store.dispatch(registerActions.registerFormReset());
     this.cancelRegister.emit(false);
   }
 
@@ -120,7 +110,7 @@ export class Register implements OnInit {
 
   // Gestisce l'input manuale: applica regex dd/MM/yyyy e imposta
   // un errore custom 'dateFormat' sul controllo per mostrare il messaggio
-  // e disabilitare il submit finché non è corretto.
+  // e disabilitare il submit finche non e corretto.
   onDobInput(ev: Event) {
     const input = ev.target as HTMLInputElement;
     this.rawDob = input.value ?? '';
@@ -148,4 +138,25 @@ export class Register implements OnInit {
     const d = new Date(year, month - 1, day);
     return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
   }
+}
+
+export function mapRegisterFormToRequest(formValue: RegisterFormValue): RegisterRequest {
+  return {
+    gender: formValue.gender,
+    username: formValue.username,
+    knownAs: formValue.knownAs,
+    dateOfBirth: toIsoDate(formValue.dateOfBirth),
+    city: formValue.city,
+    country: formValue.country,
+    password: formValue.password,
+    confirmPassword: formValue.confirmPassword
+  };
+}
+
+function toIsoDate(date: NgbDateStruct): string {
+  return [
+    date.year,
+    String(date.month).padStart(2, '0'),
+    String(date.day).padStart(2, '0')
+  ].join('-');
 }

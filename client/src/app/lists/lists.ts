@@ -1,45 +1,41 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LikesService } from '../_services/likes.service';
-import { Member } from '../_models/member';
 import { MemberCardComponent } from "../members/member-card/member-card.component";
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
-import { Paginator } from '../_models/pagination';
 import { LikesPredicate } from '../_models/likesParams';
+import { Store } from '@ngrx/store';
+import { likesActions } from '../likes/state/likes.actions';
+import { likesFeature } from '../likes/state/likes.reducer';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-lists',
   standalone: true,
-  imports: [MemberCardComponent, FormsModule, NgbPaginationModule],
+  imports: [MemberCardComponent, FormsModule, NgbPaginationModule, AsyncPipe],
   templateUrl: './lists.html',
   styleUrl: './lists.css'
 })
 export class Lists implements OnInit {
-  private likesService = inject(LikesService);
-  members: Member[] = [];
+  private store = inject(Store);
+  members$ = this.store.select(likesFeature.selectMembers);
+  pagination$ = this.store.select(likesFeature.selectPagination);
+  private params = this.store.selectSignal(likesFeature.selectParams);
+
   predicate: LikesPredicate = 'liked';
   pageNumber = 1;
   pageSize = 5;
-  pagination?: Paginator;
 
 
   ngOnInit(): void {
-    // Initialize from service remembered params
-    const p = this.likesService.getParams();
+    const p = this.params();
     this.predicate = p.predicate;
     this.pageNumber = p.pageNumber;
     this.pageSize = p.pageSize;
-    this.loadLikes();
+    this.store.dispatch(likesActions.loadLikes());
   }
 
   loadLikes() {
-    this.likesService.getLikes(this.predicate, this.pageNumber, this.pageSize).subscribe({
-      next: members => {
-        this.members = members;
-        const pr = this.likesService.paginatedResult();
-        this.pagination = pr?.pagination ?? undefined;
-      }
-    });
+    this.store.dispatch(likesActions.loadLikes());
   }
 
   getTitle() {
@@ -54,16 +50,14 @@ export class Lists implements OnInit {
     if (this.predicate === value) return;
     this.predicate = value;
     this.pageNumber = 1;
-    this.likesService.setParams({ predicate: this.predicate, pageNumber: this.pageNumber, pageSize: this.pageSize });
-    this.loadLikes();
+    this.store.dispatch(likesActions.likesPredicateChanged({ predicate: this.predicate }));
   }
 
   pageChanged(page: number) {
     if (this.pageNumber === page) return;
-    const last = this.pagination?.totalPages ?? 1;
+    const last = this.store.selectSignal(likesFeature.selectPagination)()?.totalPages ?? 1;
     this.pageNumber = Math.min(Math.max(page, 1), last);
-    this.likesService.setParams({ pageNumber: this.pageNumber });
-    this.loadLikes();
+    this.store.dispatch(likesActions.likesPageChanged({ pageNumber: this.pageNumber }));
   }
 
   onPageSizeChange(value: string | number) {
@@ -72,8 +66,7 @@ export class Lists implements OnInit {
     if (this.pageSize === newSize) return;
     this.pageSize = newSize;
     this.pageNumber = 1;
-    this.likesService.setParams({ pageSize: this.pageSize, pageNumber: this.pageNumber });
-    this.loadLikes();
+    this.store.dispatch(likesActions.likesPageSizeChanged({ pageSize: this.pageSize }));
   }
 
 }

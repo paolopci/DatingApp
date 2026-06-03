@@ -50,13 +50,14 @@
 </div>
 
 <div class="row">
-  @for(member of members; track member.id) {
+  @for(member of (members$ | async) ?? []; track member.id) {
   <div class="col-2">
     <app-member-card [member]="member" />
   </div>
   }
 </div>
 
+@if (pagination$ | async; as pagination) {
 @if (pagination) {
   <div class="row align-items-center my-3">
     <div class="col-12 col-md-4 d-none d-md-block"></div>
@@ -86,4 +87,5 @@
       </div>
     </div>
   </div>
+}
 }

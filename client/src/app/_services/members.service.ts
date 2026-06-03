@@ -1,12 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Member } from '../_models/member';
 import { map, of, tap } from 'rxjs';
-import { PaginatedResult } from '../_models/paginatedResult';
 import { UserParams } from '../_models/userParams';
 import { Paginator } from '../_models/pagination';
-import { AccountService } from './account';
 
 
 @Injectable({
@@ -14,66 +12,7 @@ import { AccountService } from './account';
 })
 export class MembersService {
   private http = inject(HttpClient);
-  private accountService = inject(AccountService);
   baseUrl = environment.apiUrl;
-  members = signal<Member[]>([]);
-  paginatedResult = signal<PaginatedResult<Member[]> | null>(null);
-
-  // Remembered filters (in-memory)
-  private defaultUserParams(): UserParams {
-    return {
-      pageNumber: 1,
-      pageSize: 5,
-      gender: undefined,
-      minAge: 18,
-      maxAge: 100,
-      orderBy: 'lastActive',
-      orderDirection: 'desc'
-    };
-  }
-  private currentParamsSig = signal<UserParams>(this.defaultUserParams());
-  private hydrated = false;
-
-  private storageKey() {
-    const u = this.accountService.currentUser();
-    const username = u?.username || 'anon';
-    return `memberListUserParams:${username}`;
-  }
-
-  private hydrateUserParamsFromStorage() {
-    if (this.hydrated) return;
-    this.hydrated = true;
-    try {
-      const raw = sessionStorage.getItem(this.storageKey());
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        this.currentParamsSig.set({ ...this.defaultUserParams(), ...parsed });
-      }
-    } catch {}
-  }
-
-  getUserParams(): UserParams {
-    this.hydrateUserParamsFromStorage();
-    return this.currentParamsSig();
-  }
-
-  setUserParams(update: Partial<UserParams>) {
-    const prev = this.currentParamsSig();
-    const next = { ...prev, ...update } as UserParams;
-    this.currentParamsSig.set(next);
-    try { sessionStorage.setItem(this.storageKey(), JSON.stringify(next)); } catch {}
-  }
-
-  resetUserParams() {
-    const next = this.defaultUserParams();
-    this.currentParamsSig.set(next);
-    try { sessionStorage.setItem(this.storageKey(), JSON.stringify(next)); } catch {}
-  }
-
-  clearStoredUserParams() {
-    try { sessionStorage.removeItem(this.storageKey()); } catch {}
-  }
 
   // List cache (LRU + TTL)
   private readonly LIST_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -144,9 +83,7 @@ export class MembersService {
       const cacheKey = this.buildListKey({ pageNumber, pageSize });
       const cached = this.getFromListCache(cacheKey);
       if (cached) {
-        this.members.set(cached.items);
-        this.paginatedResult.set({ items: cached.items, pagination: cached.pagination });
-        return of(cached.items);
+        return of({ items: cached.items, pagination: cached.pagination });
       }
 
       return this.http.get<Member[]>(this.baseUrl + 'users', { observe: 'response', params })
@@ -154,34 +91,24 @@ export class MembersService {
           map(resp => {
             const items = resp.body ?? [];
             const paginationHeader = resp.headers.get('Pagination');
-            const pagination = paginationHeader ? JSON.parse(paginationHeader) : undefined;
+            const pagination = paginationHeader ? JSON.parse(paginationHeader) as Paginator : undefined;
 
-            this.members.set(items);
-            this.paginatedResult.set({ items, pagination });
             this.putInListCache(cacheKey, { items, pagination });
-            return items;
+            return { items, pagination };
           })
         );
     }
 
     // Senza paginazione: usa la cache se presente, altrimenti chiama l'API semplice
-    if (this.members().length > 0) return of(this.members());
-
     return this.http.get<Member[]>(this.baseUrl + 'users').pipe(
-      tap(members => this.members.set(members))
+      map(items => ({ items, pagination: undefined }))
     );
   }
 
   getMember(username: string) {
-    // 1) tenta da lista già caricata
-    const fromList = this.members().find(x => x.username === username);
-    if (fromList) { this.putInMemberCache(fromList); return of(fromList); }
-
-    // 2) tenta dal cache dettaglio
     const cached = this.getFromMemberCache(username);
     if (cached) return of(cached);
 
-    // 3) fallback API e memorizzazione
     return this.http.get<Member>(this.baseUrl + 'users/' + username).pipe(
       tap(m => this.putInMemberCache(m))
     );
@@ -190,7 +117,6 @@ export class MembersService {
   updateMember(member: Member) {
     return this.http.put(this.baseUrl + 'users', member).pipe(
       map(() => {
-        this.members.update(members => members.map(m => m.username === member.username ? member : m))
         this.putInMemberCache(member); // write-through per dettaglio
         this.invalidateListCache();
       })
@@ -214,13 +140,6 @@ export class MembersService {
 
   // Aggiorna la cache locale quando cambia la main photo
   syncMainPhotoLocal(username: string, photoId: number, photoUrl: string) {
-    this.members.update(list => list.map(m => {
-      if (m.username !== username) return m;
-      const updatedPhotos = (m.photos || []).map(p => ({ ...p, isMain: p.id === photoId }));
-      return { ...m, photoUrl: photoUrl, photos: updatedPhotos } as Member;
-    }));
-
-    // Aggiorna eventuale cache dettaglio
     const cached = this.getFromMemberCache(username);
     if (cached) {
       const updatedPhotos = (cached.photos || []).map(p => ({ ...p, isMain: p.id === photoId }));
@@ -246,9 +165,7 @@ export class MembersService {
     const cacheKey = this.buildListKey(paramsIn);
     const cached = this.getFromListCache(cacheKey);
     if (cached) {
-      this.members.set(cached.items);
-      this.paginatedResult.set({ items: cached.items, pagination: cached.pagination });
-      return of(cached.items);
+      return of({ items: cached.items, pagination: cached.pagination });
     }
 
     return this.http.get<Member[]>(this.baseUrl + 'users', { observe: 'response', params })
@@ -256,12 +173,10 @@ export class MembersService {
         map(resp => {
           const items = resp.body ?? [];
           const paginationHeader = resp.headers.get('Pagination');
-          const pagination = paginationHeader ? JSON.parse(paginationHeader) : undefined;
+          const pagination = paginationHeader ? JSON.parse(paginationHeader) as Paginator : undefined;
 
-          this.members.set(items);
-          this.paginatedResult.set({ items, pagination });
           this.putInListCache(cacheKey, { items, pagination });
-          return items;
+          return { items, pagination };
         })
       );
   }

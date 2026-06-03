@@ -1,28 +1,30 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule, NgbTooltipModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { MembersService } from '../../_services/members.service';
-import { AccountService } from '../../_services/account';
-import { Member } from '../../_models/member';
-import { Paginator } from '../../_models/pagination';
 import { User } from '../../_models/User';
 import { MemberCardComponent } from '../member-card/member-card.component';
+import { Store } from '@ngrx/store';
+import { membersActions } from '../state/members.actions';
+import { membersFeature } from '../state/members.reducer';
+import { authFeature } from '../../auth/state/auth.reducer';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-member-list',
   standalone: true,
-  imports: [MemberCardComponent, NgbPaginationModule, NgbTooltipModule, FormsModule],
+  imports: [MemberCardComponent, NgbPaginationModule, NgbTooltipModule, FormsModule, AsyncPipe],
   templateUrl: './member-list.html',
   styleUrl: './member-list.css'
 })
 export class MemberList implements OnInit {
-  private memberService = inject(MembersService);
-  private accountService = inject(AccountService);
+  private store = inject(Store);
+  members$ = this.store.select(membersFeature.selectMembers);
+  pagination$ = this.store.select(membersFeature.selectPagination);
+  private params = this.store.selectSignal(membersFeature.selectParams);
+  private currentUser = this.store.selectSignal(authFeature.selectCurrentUser);
 
-  members: Member[] = [];
   pageNumber = 1;
   pageSize = 5;
-  pagination?: Paginator;
 
   // Filtri
   gender: string = '';
@@ -33,8 +35,7 @@ export class MemberList implements OnInit {
   orderDirByField: Record<'created' | 'lastActive', 'asc' | 'desc'> = { created: 'desc', lastActive: 'desc' };
 
   ngOnInit(): void {
-    // Initialize from service remembered params
-    const r = this.memberService.getUserParams();
+    const r = this.params();
     this.pageNumber = r.pageNumber;
     this.pageSize = r.pageSize;
     this.gender = r.gender ?? '';
@@ -42,7 +43,7 @@ export class MemberList implements OnInit {
     this.maxAge = typeof r.maxAge === 'number' ? r.maxAge : 100;
     this.orderBy = r.orderBy ?? 'lastActive';
     this.orderDirection = r.orderDirection ?? 'desc';
-    const current: User | null = this.accountService.currentUser();
+    const current: User | null = this.currentUser();
     if (!this.gender && current?.gender) {
       const g = current.gender.toLowerCase();
       this.gender = g === 'male' ? 'female' : g === 'female' ? 'male' : '';
@@ -51,8 +52,7 @@ export class MemberList implements OnInit {
   }
 
   loadMembers() {
-    // Persist params in service so they are remembered across navigations
-    this.memberService.setUserParams({
+    this.store.dispatch(membersActions.memberParamsChanged({ params: {
       pageNumber: this.pageNumber,
       pageSize: this.pageSize,
       gender: this.gender || undefined,
@@ -60,29 +60,12 @@ export class MemberList implements OnInit {
       maxAge: this.maxAge,
       orderBy: this.orderBy,
       orderDirection: this.orderDirection
-    });
-    this.memberService.getMembersFiltered({
-      pageNumber: this.pageNumber,
-      pageSize: this.pageSize,
-      gender: this.gender || undefined,
-      minAge: this.minAge,
-      maxAge: this.maxAge,
-      orderBy: this.orderBy,
-      orderDirection: this.orderDirection
-    }).subscribe({
-      next: members => {
-        this.members = members;
-        const pr = this.memberService.paginatedResult();
-        this.pagination = pr?.pagination ?? undefined;
-      },
-      error: error => console.log(error),
-      complete: () => console.log('Request has completed')
-    });
+    }}));
   }
 
   pageChanged(page: number) {
     if (this.pageNumber === page) return;
-    const last = this.pagination?.totalPages ?? 1;
+    const last = this.store.selectSignal(membersFeature.selectPagination)()?.totalPages ?? 1;
     this.pageNumber = Math.min(Math.max(page, 1), last);
     this.loadMembers();
   }
@@ -102,14 +85,15 @@ export class MemberList implements OnInit {
   }
 
   resetFilters() {
-    const current: User | null = this.accountService.currentUser();
-    this.memberService.resetUserParams();
-    const r = this.memberService.getUserParams();
+    const current: User | null = this.currentUser();
+    const resetGender = current?.gender ? (current.gender.toLowerCase() === 'male' ? 'female' : current.gender.toLowerCase() === 'female' ? 'male' : undefined) : undefined;
+    this.store.dispatch(membersActions.memberParamsReset({ gender: resetGender }));
+    const r = this.params();
     // Apply defaults from service
     this.pageNumber = r.pageNumber;
     this.pageSize = r.pageSize;
     // keep the opposite-gender default if available
-    this.gender = current?.gender ? (current.gender.toLowerCase() === 'male' ? 'female' : current.gender.toLowerCase() === 'female' ? 'male' : '') : (r.gender ?? '');
+    this.gender = resetGender ?? (r.gender ?? '');
     this.minAge = typeof r.minAge === 'number' ? r.minAge : 18;
     this.maxAge = typeof r.maxAge === 'number' ? r.maxAge : 100;
     this.orderBy = r.orderBy ?? 'lastActive';

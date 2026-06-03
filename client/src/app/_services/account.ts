@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { User } from '../_models/User';
-import { map } from 'rxjs';
 import { environment } from '../../environments/environment.development';
-import { LikesService } from './likes.service';
+import { LoginCredentials } from '../auth/state/auth.models';
 
 
 @Injectable({
@@ -11,41 +10,40 @@ import { LikesService } from './likes.service';
 })
 export class AccountService {
   private http = inject(HttpClient);
-  private likeService = inject(LikesService);
   baseUrl = environment.apiUrl;
-  currentUser = signal<User | null>(null);
 
-  login(model: any) {
-    return this.http.post<User>(this.baseUrl + 'account/login', model)
-      .pipe(
-        map(user => {
-          if (user) {
-            this.setCurrentUser(user);
-          }
-        })
-      );
+  login(credentials: LoginCredentials) {
+    return this.http.post<User>(this.baseUrl + 'account/login', credentials);
   }
 
-  logout() {
-    localStorage.removeItem('user');
-    this.currentUser.set(null);
+  register(model: unknown) {
+    return this.http.post<User>(this.baseUrl + 'account/register', model);
   }
 
-  register(model: any) {
-    return this.http.post<User>(this.baseUrl + 'account/register', model)
-      .pipe(
-        map(user => {
-          if (user) {
-            this.setCurrentUser(user);
-          }
-          return user;
-        })
-      );
-  }
-
-  setCurrentUser(user: User) {
+  persistCurrentUser(user: User) {
     localStorage.setItem('user', JSON.stringify(user));
-    this.currentUser.set(user);
-    this.likeService.getLikesIds();
+  }
+
+  getPersistedCurrentUser(): User | null {
+    const userString = localStorage.getItem('user');
+    if (!userString) return null;
+
+    try {
+      return JSON.parse(userString) as User;
+    } catch {
+      this.clearPersistedUser();
+      return null;
+    }
+  }
+
+  clearPersistedUser() {
+    localStorage.removeItem('user');
+  }
+
+  updatePersistedCurrentUser(update: Partial<User>) {
+    const user = this.getPersistedCurrentUser();
+    if (!user) return;
+
+    this.persistCurrentUser({ ...user, ...update });
   }
 }

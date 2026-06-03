@@ -1,10 +1,11 @@
 import { Component, computed, inject, input, OnInit, signal, effect } from '@angular/core';
-import { MembersService } from '../../_services/members.service';
 import { ActivatedRoute } from '@angular/router';
-import { Member } from '../../_models/member';
 import { Photo } from '../../_models/photo';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+import { Store } from '@ngrx/store';
+import { membersActions } from '../state/members.actions';
+import { membersFeature } from '../state/members.reducer';
 
 
 @Component({
@@ -16,7 +17,7 @@ import { NgbNavModule, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class MemberDetail implements OnInit {
 
-  private memberService = inject(MembersService);
+  private store = inject(Store);
   private route = inject(ActivatedRoute);
   //member?: Member
   member = input<any | null>(null);
@@ -31,13 +32,10 @@ export class MemberDetail implements OnInit {
   /** Avatar principale con fallback al placeholder. */
   avatarUrl = computed(() => this.vm()?.photoUrl || 'assets/user.png');
 
-  // 2) Aggiungi un signal scrivibile per lo stato locale
-  private memberState = signal<Member | null>(null);
-
   // 3) Sincronizza automaticamente l'input nel signal locale (se il parent lo fornisce)
   private syncInput = effect(() => {
     const fromParent = this.member();
-    if (fromParent) this.memberState.set(fromParent);
+    if (fromParent) this.store.dispatch(membersActions.memberLoaded({ member: fromParent }));
   });
 
 
@@ -49,17 +47,12 @@ export class MemberDetail implements OnInit {
   loadMember() {
     const username = this.route.snapshot.paramMap.get('username');
     if (!username) return;
-    this.memberService.getMember(username).subscribe({
-      next: m => {
-        this.memberState.set(m)
-        console.log(m);
-      }
-    });
+    this.store.dispatch(membersActions.loadMember({ username }));
   }
 
   // Computed che trasforma le foto in immagini per la gallery
 
 
   // Facoltativo: getter comodo per il template
-  vm = computed(() => this.memberState());
+  vm = this.store.selectSignal(membersFeature.selectSelectedMember);
 }

@@ -1,12 +1,14 @@
-import { Component, OnInit, inject, signal, computed, ViewChild, HostListener } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { MembersService } from '../../_services/members.service';
-import { AccountService } from '../../_services/account';
-import { Toast } from '../../_services/toast';
 import { Member } from '../../_models/member';
 import { PhotoEditorComponent } from "../photo-editor/photo-editor.component";
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { Store } from '@ngrx/store';
+import { authFeature } from '../../auth/state/auth.reducer';
+import { membersActions } from '../state/members.actions';
+import { membersFeature } from '../state/members.reducer';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-member-edit',
@@ -24,9 +26,9 @@ export class MemberEditComponent implements OnInit {
     }
   }
 
-  private memberService = inject(MembersService);
-  private toast = inject(Toast);
-  private accountService = inject(AccountService);
+  private store = inject(Store);
+  private destroyRef = inject(DestroyRef);
+  private currentUser = this.store.selectSignal(authFeature.selectCurrentUser);
 
   // Sorgente: stato ufficiale (signal)
   member = signal<Member | null>(null);
@@ -35,7 +37,15 @@ export class MemberEditComponent implements OnInit {
   edit: Member | null = null;
 
   ngOnInit(): void {
-    const user = this.accountService.currentUser(); // ✅ accesso diretto alla signal
+    this.store.select(membersFeature.selectSelectedMember)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(member => {
+        if (!member) return;
+        this.member.set(member);
+        this.edit = structuredClone(member);
+      });
+
+    const user = this.currentUser();
     if (user?.username) {
       this.loadMember(user.username);
     } else {
@@ -44,33 +54,13 @@ export class MemberEditComponent implements OnInit {
   }
 
   loadMember(username: string) {
-    this.memberService.getMember(username).subscribe({
-      next: m => {
-        this.member.set(m);
-        this.edit = m;
-      },
-      error: err => console.error('Errore nel caricamento del profilo:', err)
-    });
+    this.store.dispatch(membersActions.loadMember({ username }));
   }
 
   updateMember() {
     if (!this.edit) return;
 
-    this.memberService.updateMember(this.edit).subscribe({
-      next: () => {
-        // allinea lo stato locale (signal) alla versione appena salvata
-
-        this.member.set(structuredClone(this.edit!));
-        // usa lo stesso metodo che stavi già usando
-        this.toast.show('Profilo aggiornato con successo!', 'success');
-        this.member.set(structuredClone(this.edit!));
-        this.editForm?.reset(this.edit);
-      },
-      error: (err: unknown) => {
-        console.error(err);
-        this.toast.show('Aggiornamento non riuscito');
-      }
-    });
+    this.store.dispatch(membersActions.updateMemberRequested({ member: structuredClone(this.edit) }));
   }
 
   avatarUrl(): string {

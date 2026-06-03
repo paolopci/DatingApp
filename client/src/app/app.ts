@@ -5,6 +5,8 @@ import { Spinner } from './spinner/spinner'; // Importa il componente spinner.
 import { Nav } from './nav/nav';
 import { AccountService } from './_services/account';
 import { Toasts } from './toasts/toasts';
+import { Store } from '@ngrx/store';
+import { authActions } from './auth/state/auth.actions';
 
 /**
  * The root component of the application.
@@ -26,8 +28,8 @@ import { Toasts } from './toasts/toasts';
 })
 export class App implements OnInit {
 
-  // Iniettiamo l'AccountService per gestire i dati dell'utente.
   private accountService = inject(AccountService);
+  private store = inject(Store);
 
   /**
    * Lifecycle hook that is called after Angular has initialized all data-bound properties.
@@ -39,14 +41,16 @@ export class App implements OnInit {
 
   /**
    * Checks for a user object in local storage and, if found,
-   * sets the current user in the AccountService.
+   * restores the current user into the NgRx auth store.
    * Questo assicura che lo stato di login dell'utente persista tra le sessioni.
    */
   setCurrentUser() {
     const userString = localStorage.getItem('user'); // Recupera l'utente dal localStorage.
     if (userString) {
-      const user = JSON.parse(userString);
-      this.accountService.setCurrentUser(user);
+      const user = this.accountService.getPersistedCurrentUser();
+      if (user) {
+        this.store.dispatch(authActions.currentUserRestored({ user }));
+      }
     }
   }
 }

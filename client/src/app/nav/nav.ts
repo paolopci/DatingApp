@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AccountService } from '../_services/account'; // Assuming Account service is in the same directory
-import { MembersService } from '../_services/members.service';
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Toast } from '../_services/toast';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Store } from '@ngrx/store';
+import { authActions } from '../auth/state/auth.actions';
+import { LoginCredentials } from '../auth/state/auth.models';
+import { authFeature } from '../auth/state/auth.reducer';
 
 
 // Aggiorna il percorso se necessario
@@ -18,45 +19,20 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './nav.css'
 })
 export class Nav {
-  accountService = inject(AccountService)
-  private membersService = inject(MembersService);
-  private toastsService = inject(Toast);
-  private router = inject(Router);
-  model: any = {};
+  private readonly store = inject(Store);
+  currentUser$ = this.store.select(authFeature.selectCurrentUser);
+  loginError$ = this.store.select(authFeature.selectError);
+  loading$ = this.store.select(authFeature.selectLoading);
+  model: LoginCredentials = { username: '', password: '' };
 
 
 
   login() {
-    this.accountService.login(this.model).subscribe({
-      next: _ => {
-        this.router.navigateByUrl('/members'); // Navigate to members page after login
-      },
-      error: (err) => {
-        // recupera il messaggio dall'errore
-        let errorMessage = 'Errore imprevisto';
-
-        if (err.error) {
-          if (typeof err.error === 'string') {
-            errorMessage = err.error;
-          } else if (err.error.message) {
-            errorMessage = err.error.message;
-          } else if (err.error.title) {
-            errorMessage = err.error.title;
-          }
-        } else if (err.message) {
-          errorMessage = err.message;
-        }
-
-        this.toastsService.show(errorMessage, 'error');
-      }
-    });
+    this.store.dispatch(authActions.loginSubmitted({ credentials: this.model }));
   }
 
   logout() {
-    // Pulisce i filtri ricordati per l'utente corrente
-    this.membersService.clearStoredUserParams();
-    this.accountService.logout();
-    this.router.navigateByUrl('/'); // Navigate to home page after logout
+    this.store.dispatch(authActions.logoutRequested());
   }
 
 }

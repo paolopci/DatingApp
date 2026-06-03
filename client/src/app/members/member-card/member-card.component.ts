@@ -1,7 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Member } from '../../_models/member';
 import { RouterLink } from '@angular/router';
-import { LikesService } from '../../_services/likes.service';
+import { Store } from '@ngrx/store';
+import { likesActions } from '../../likes/state/likes.actions';
+import { likesFeature } from '../../likes/state/likes.reducer';
 
 
 @Component({
@@ -12,21 +14,14 @@ import { LikesService } from '../../_services/likes.service';
   styleUrl: './member-card.component.css'
 })
 export class MemberCardComponent {
-  private likesService = inject(LikesService);
+  private store = inject(Store);
+  private likeIds = this.store.selectSignal(likesFeature.selectLikeIds);
   member = input.required<Member>();
 
-  hasLaked = computed(() => this.likesService.likeIds().includes(this.member().id));
+  hasLaked = computed(() => this.likeIds().includes(this.member().id));
 
   toggleLike() {
-    this.likesService.toggleLike(this.member().id).subscribe({
-      next: () => {
-        if (this.hasLaked()) {
-          this.likesService.likeIds.update(ids => ids.filter(x => x !== this.member().id));
-        } else {
-          this.likesService.likeIds.update(ids => [...ids, this.member().id]);
-        }
-      }
-    });
+    this.store.dispatch(likesActions.likeToggled({ memberId: this.member().id }));
   }
 
 }
